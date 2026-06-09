@@ -7,9 +7,12 @@ export const photographer = {
   shortBio:
     "I capture stories, emotions, and moments that would otherwise be forgotten.",
   location: "Pune, Maharashtra",
-  email: "hello@ajaybhosale.com",
-  phone: "+91 98765 43210",
-  instagram: "@ajaybhosale.frames",
+  email: "ajaybhosale@dummy.com",
+  phone: "+91 8180857920",
+  instagram: "chitrography_films",
+  youtube: "ajaybhosalecinematography96",
+  instagramUrl: "https://www.instagram.com/chitrography_films/",
+  youtubeUrl: "https://youtube.com/@ajaybhosalecinematography96?si=AubKZwaYjfowSIov",
   portrait: cloudinaryImage("samples/people/jazz", {
     width: 900,
     height: 1200,

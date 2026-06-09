@@ -1,16 +1,19 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { IoArrowUp } from "react-icons/io5";
 import {
   Link,
   Route,
   Routes,
   useLocation,
   useNavigate,
+  useNavigationType,
 } from "react-router-dom";
 import { photographer } from "./data/portfolio";
 import { useLenis } from "./hooks/useLenis.js";
 import GalleryPage from "./pages/GalleryPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
+import ProjectsPage from "./pages/ProjectsPage.jsx";
 import StoryPage from "./pages/StoryPage.jsx";
 
 function CinematicBackground() {
@@ -186,30 +189,34 @@ function Navigation() {
   const navItems = [
     { label: "Home", section: "home" },
     { label: "About", section: "about" },
-    { label: "Gallery", section: "captured", path: "/gallery" },
+    { label: "Gallery", section: "captured" },
     { label: "Projects", section: "projects" },
     { label: "Contact", section: "contact" },
   ];
 
   return (
     <header className="fixed inset-x-0 top-0 z-[101] px-4 py-6 sm:px-8">
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-black/5 bg-white px-6 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-3xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/20 bg-white/10 px-6 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
         <button
           type="button"
           onClick={() => handleAnchor("home")}
-          className="font-display text-2xl tracking-tighter text-black transition hover:opacity-70"
+          className="font-display text-2xl tracking-tighter text-white transition hover:opacity-70"
         >
           {photographer.name}
         </button>
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => {
+            const isGallery = item.section === "captured";
+            const isProjects = item.section === "projects";
             const active =
               (item.path && location.pathname === item.path) ||
+              (isGallery && location.pathname === "/gallery") ||
+              (isProjects && location.pathname === "/projects") ||
               (location.pathname === "/" && activeSection === item.section);
             const classes = `rounded-full px-5 py-2 text-[11px] font-bold uppercase tracking-[0.3em] transition-all duration-300 ${
               active
-                ? "bg-black text-white shadow-[0_0_20px_rgba(0,0,0,0.1)]"
-                : "text-black/50 hover:bg-black/5 hover:text-black"
+                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                : "text-white/60 hover:bg-white/10 hover:text-white"
             }`;
 
             if (item.path) {
@@ -239,12 +246,72 @@ function Navigation() {
 
 function ScrollToTop() {
   const { pathname } = useLocation();
+  const navType = useNavigationType();
 
   useEffect(() => {
+    // If user clicked 'Back' (POP), don't force scroll to top
+    // Let the browser/Lenis handle scroll restoration
+    if (navType === "POP") return;
+
+    // Immediate scroll for both standard and Lenis scroll
     window.scrollTo(0, 0);
-  }, [pathname]);
+    document.documentElement.scrollTo(0, 0);
+    document.body.scrollTo(0, 0);
+
+    // Backup scroll with a tiny delay to ensure content has rendered and Lenis is reset
+    const timeout = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      // If Lenis is active, this helps reset its internal state
+      document.documentElement.style.scrollBehavior = "auto";
+      window.scrollTo(0, 0);
+      document.documentElement.style.scrollBehavior = "";
+    }, 50);
+
+    return () => clearTimeout(timeout);
+  }, [pathname, navType]);
 
   return null;
+}
+
+function ScrollToTopButton() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.pageYOffset > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", toggleVisibility);
+    return () => window.removeEventListener("scroll", toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 20 }}
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all hover:border-amber-200/50 hover:bg-white/20 hover:text-amber-200 active:scale-95 sm:bottom-10 sm:right-10 sm:h-14 sm:w-14"
+          aria-label="Scroll to top"
+        >
+          <IoArrowUp size={24} />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
 }
 
 function App() {
@@ -257,6 +324,7 @@ function App() {
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <ScrollToTop />
       <CinematicBackground />
+      <ScrollToTopButton />
       <div className="relative z-10">
         {introComplete && <Navigation />}
         <AnimatePresence mode="wait">
@@ -272,6 +340,7 @@ function App() {
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<HomePage />} />
               <Route path="/gallery" element={<GalleryPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/story/:slug" element={<StoryPage />} />
             </Routes>
           )}

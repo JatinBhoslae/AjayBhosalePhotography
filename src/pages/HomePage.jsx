@@ -6,8 +6,12 @@ import { Link } from "react-router-dom";
 import {
   IoArrowForward,
   IoLogoInstagram,
+  IoLogoYoutube,
   IoMailOutline,
+  IoCallOutline,
   IoStar,
+  IoCopyOutline,
+  IoCheckmarkOutline,
 } from "react-icons/io5";
 import { HeroCameraCanvas } from "../components/CameraScene.jsx";
 import {
@@ -338,6 +342,8 @@ function CategoriesSection() {
 }
 
 function FeaturedProjectsSection() {
+  const displayProjects = projects.slice(0, 2);
+
   return (
     <SectionShell
       id="projects"
@@ -345,7 +351,7 @@ function FeaturedProjectsSection() {
       title="Thematic explorations and commissioned narratives."
     >
       <div className="space-y-24 sm:space-y-32">
-        {projects.map((project, index) => (
+        {displayProjects.map((project, index) => (
           <div
             key={project.name}
             className={`grid gap-10 lg:grid-cols-2 lg:items-center ${
@@ -425,6 +431,15 @@ function FeaturedProjectsSection() {
           </div>
         ))}
       </div>
+      <div className="mt-20 text-center">
+        <Link
+          to="/projects"
+          className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-8 py-4 text-sm font-medium uppercase tracking-[0.25em] text-white transition hover:bg-white/10"
+        >
+          View All Projects
+          <IoArrowForward />
+        </Link>
+      </div>
     </SectionShell>
   );
 }
@@ -477,6 +492,14 @@ function TestimonialsSection() {
 }
 
 function ContactSection() {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(photographer.phone);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <SectionShell
       id="contact"
@@ -487,8 +510,11 @@ function ContactSection() {
       <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr]">
         <Reveal>
           <div className="space-y-10">
-            <div className="flex items-center gap-5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-amber-200">
+            <a
+              href={`mailto:${photographer.email}`}
+              className="flex items-center gap-5 group transition-transform hover:translate-x-2"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
                 <IoMailOutline size={24} />
               </div>
               <div>
@@ -497,26 +523,68 @@ function ContactSection() {
                 </p>
                 <p className="text-lg text-white">{photographer.email}</p>
               </div>
-            </div>
-            <div className="flex items-center gap-5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-amber-200">
-                <IoLogoInstagram size={24} />
+            </a>
+
+            <div className="flex items-center gap-5 group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
+                {copied ? (
+                  <IoCheckmarkOutline size={24} />
+                ) : (
+                  <IoCallOutline size={24} />
+                )}
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-[10px] uppercase tracking-widest text-white/40">
-                  Follow Me
+                  Phone Number
                 </p>
-                <p className="text-lg text-white">{photographer.instagram}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-lg text-white">{photographer.phone}</p>
+                  <button
+                    onClick={copyToClipboard}
+                    className="text-[10px] uppercase tracking-widest text-amber-200/60 hover:text-amber-200 transition-colors"
+                  >
+                    {copied ? "Copied!" : "Click to copy"}
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-8">
-              <p className="text-xs uppercase tracking-[0.35em] text-white/40">
-                Pune Studio
-              </p>
-              <p className="mt-4 text-white/70">
-                Available for worldwide assignments and luxury documentary
-                projects.
-              </p>
+
+            <div className="flex flex-col gap-6">
+              <a
+                href={photographer.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-5 group transition-transform hover:translate-x-2"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
+                  <IoLogoInstagram size={24} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-white/40">
+                    Instagram
+                  </p>
+                  <p className="text-lg text-white">
+                    @{photographer.instagram}
+                  </p>
+                </div>
+              </a>
+
+              <a
+                href={photographer.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-5 group transition-transform hover:translate-x-2"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
+                  <IoLogoYoutube size={24} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-white/40">
+                    YouTube
+                  </p>
+                  <p className="text-lg text-white">{photographer.youtube}</p>
+                </div>
+              </a>
             </div>
           </div>
         </Reveal>
@@ -570,6 +638,20 @@ function ContactSection() {
 
 export default function HomePage() {
   const { scrollYProgress } = useScroll();
+
+  useEffect(() => {
+    const target = sessionStorage.getItem("scroll-target");
+    if (target) {
+      sessionStorage.removeItem("scroll-target");
+      // Small delay to ensure the page has rendered
+      setTimeout(() => {
+        const element = document.getElementById(target);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-[#050505] overflow-x-hidden selection:bg-white/10">
