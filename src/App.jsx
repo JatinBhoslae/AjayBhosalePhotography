@@ -29,6 +29,7 @@ function BackgroundMusic({ isVisible }) {
 
   useEffect(() => {
     if (isVisible && audioRef.current) {
+      audioRef.current.volume = 0.2;
       audioRef.current.play().catch((err) => {
         console.log("Autoplay blocked or audio error:", err);
       });
@@ -234,6 +235,15 @@ function Navigation() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 60);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (location.pathname !== "/") {
@@ -293,119 +303,271 @@ function Navigation() {
   ];
 
   return (
-    <header className="fixed inset-x-0 top-0 z-[101] px-4 py-6 sm:px-8">
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/20 bg-white/10 px-6 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
-        <button
-          type="button"
-          onClick={() => handleAnchor("home")}
-          className="flex items-center gap-3 transition hover:opacity-70"
+    <>
+      <header
+        className={`fixed inset-x-0 top-0 z-[101] transition-all duration-500 ease-out ${
+          isScrolled ? "py-3" : "py-5"
+        }`}
+      >
+        <div
+          className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-500 sm:px-10 ${
+            isScrolled
+              ? "rounded-2xl border border-white/[0.08] bg-black/40 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-2xl"
+              : "rounded-none border-transparent bg-transparent py-4"
+          }`}
         >
-          <img
-            src="/logo.jpg"
-            alt={photographer.name}
-            className="h-8 w-8 rounded-full object-cover"
-          />
-          <span className="font-display text-xl tracking-tighter text-white">
-            {photographer.name}
-          </span>
-        </button>
-
-        {/* Desktop Nav */}
-        <nav className="hidden items-center gap-1 md:flex">
-          {navItems.map((item) => {
-            const isGallery = item.section === "captured";
-            const isProjects = item.section === "projects";
-            const active =
-              (item.path && location.pathname === item.path) ||
-              (isGallery && location.pathname === "/gallery") ||
-              (isProjects && location.pathname === "/projects") ||
-              (location.pathname === "/" && activeSection === item.section);
-            const classes = `rounded-full px-5 py-2 text-[11px] font-bold uppercase tracking-[0.3em] transition-all duration-300 ${
-              active
-                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                : "text-white/60 hover:bg-white/10 hover:text-white"
-            }`;
-
-            return (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => handleAnchor(item.section)}
-                className={classes}
+          {/* Logo / Brand */}
+          <button
+            type="button"
+            onClick={() => handleAnchor("home")}
+            className="group flex items-center gap-3 transition-all duration-300 hover:opacity-80"
+          >
+            <div className="relative">
+              <img
+                src="/logo.jpg"
+                alt={photographer.name}
+                className={`rounded-full object-cover ring-1 ring-white/20 transition-all duration-500 group-hover:ring-amber-200/40 ${
+                  isScrolled ? "h-8 w-8" : "h-10 w-10"
+                }`}
+              />
+            </div>
+            <div className="flex flex-col items-start">
+              <span
+                className={`font-display font-semibold tracking-wide text-white transition-all duration-500 ${
+                  isScrolled ? "text-lg" : "text-xl"
+                }`}
               >
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
+                {photographer.name}
+              </span>
+              <span
+                className={`text-[9px] font-medium uppercase tracking-[0.35em] text-white/40 transition-all duration-500 ${
+                  isScrolled ? "opacity-0 h-0 overflow-hidden" : "opacity-100"
+                }`}
+              >
+                {photographer.subtitle}
+              </span>
+            </div>
+          </button>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white md:hidden"
-        >
-          {isMobileMenuOpen ? (
-            <IoCloseOutline size={24} />
-          ) : (
-            <IoMenuOutline size={24} />
-          )}
-        </button>
-      </div>
+          {/* Desktop Nav */}
+          <nav className="hidden items-center gap-2 md:flex">
+            {navItems.map((item) => {
+              const isGallery = item.section === "captured";
+              const isProjects = item.section === "projects";
+              const active =
+                (item.path && location.pathname === item.path) ||
+                (isGallery && location.pathname === "/gallery") ||
+                (isProjects && location.pathname === "/projects") ||
+                (location.pathname === "/" && activeSection === item.section);
+
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => handleAnchor(item.section)}
+                  className="group relative px-4 py-2"
+                >
+                  <span
+                    className={`relative z-10 text-[11px] font-semibold uppercase tracking-[0.25em] transition-colors duration-300 ${
+                      active
+                        ? "text-white"
+                        : "text-white/50 group-hover:text-white/90"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                  {/* Animated underline */}
+                  <span
+                    className={`absolute bottom-0 left-1/2 h-px -translate-x-1/2 bg-gradient-to-r from-transparent via-amber-200/80 to-transparent transition-all duration-500 ease-out ${
+                      active
+                        ? "w-3/4 opacity-100"
+                        : "w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-60"
+                    }`}
+                  />
+                  {/* Active dot indicator */}
+                  {active && (
+                    <motion.span
+                      layoutId="nav-active-dot"
+                      className="absolute -bottom-0.5 left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-amber-200/90"
+                      transition={{
+                        type: "spring",
+                        stiffness: 350,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+
+            {/* Separator + CTA */}
+            <div className="ml-2 h-5 w-px bg-white/10" />
+            <button
+              type="button"
+              onClick={() => handleAnchor("contact")}
+              className="ml-2 rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/70 transition-all duration-300 hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200"
+            >
+              Book Now
+            </button>
+          </nav>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:bg-white/10 md:hidden"
+          >
+            <motion.div
+              animate={isMobileMenuOpen ? "open" : "closed"}
+              className="flex flex-col items-center justify-center gap-[5px]"
+            >
+              <motion.span
+                variants={{
+                  closed: { rotate: 0, y: 0, width: 18 },
+                  open: { rotate: 45, y: 3.5, width: 18 },
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="block h-[1.5px] rounded-full bg-white"
+              />
+              <motion.span
+                variants={{
+                  closed: { opacity: 1, width: 14 },
+                  open: { opacity: 0, width: 0 },
+                }}
+                transition={{ duration: 0.2 }}
+                className="block h-[1.5px] rounded-full bg-white"
+              />
+              <motion.span
+                variants={{
+                  closed: { rotate: 0, y: 0, width: 18 },
+                  open: { rotate: -45, y: -3.5, width: 18 },
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="block h-[1.5px] rounded-full bg-white"
+              />
+            </motion.div>
+          </button>
+        </div>
+      </header>
 
       {/* Mobile Nav Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Backdrop for closing the menu */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-[101] bg-black/60 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-[101] bg-black/80 backdrop-blur-md md:hidden"
             />
             <motion.div
               initial={{ opacity: 0, x: "100%" }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 right-0 z-[102] w-full max-w-sm bg-[#0a0a0a]/95 p-12 shadow-2xl backdrop-blur-3xl md:hidden"
+              transition={{
+                type: "tween",
+                duration: 0.5,
+                ease: [0.65, 0, 0.35, 1],
+              }}
+              className="fixed inset-y-0 right-0 z-[102] flex w-full max-w-sm flex-col bg-[#080808]/98 shadow-2xl backdrop-blur-3xl md:hidden"
             >
-              <div className="flex flex-col gap-8 pt-20">
-                {navItems.map((item, index) => (
-                  <motion.button
-                    key={item.label}
-                    type="button"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + index * 0.1 }}
-                    onClick={() => handleAnchor(item.section)}
-                    className="text-left text-3xl font-display uppercase tracking-[0.2em] text-white/70 transition-colors hover:text-white"
-                  >
-                    {item.label}
-                  </motion.button>
-                ))}
+              {/* Mobile header */}
+              <div className="flex items-center justify-between border-b border-white/[0.06] px-8 py-6">
+                <span className="font-display text-lg tracking-wide text-white/80">
+                  Menu
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/60 transition hover:text-white"
+                >
+                  <IoCloseOutline size={20} />
+                </button>
               </div>
 
-              <div className="absolute bottom-12 left-12 right-12">
-                <div className="mb-8 flex justify-center">
+              {/* Nav links */}
+              <div className="flex flex-1 flex-col justify-center px-8">
+                <div className="flex flex-col gap-1">
+                  {navItems.map((item, index) => {
+                    const isGallery = item.section === "captured";
+                    const isProjects = item.section === "projects";
+                    const active =
+                      (item.path && location.pathname === item.path) ||
+                      (isGallery && location.pathname === "/gallery") ||
+                      (isProjects && location.pathname === "/projects") ||
+                      (location.pathname === "/" &&
+                        activeSection === item.section);
+
+                    return (
+                      <motion.button
+                        key={item.label}
+                        type="button"
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: 0.15 + index * 0.08,
+                          duration: 0.5,
+                          ease: [0.65, 0, 0.35, 1],
+                        }}
+                        onClick={() => handleAnchor(item.section)}
+                        className={`group flex items-center justify-between border-b border-white/[0.04] py-5 text-left transition-all duration-300 ${
+                          active
+                            ? "text-white"
+                            : "text-white/50 hover:text-white"
+                        }`}
+                      >
+                        <span className="font-display text-2xl font-semibold uppercase tracking-[0.15em]">
+                          {item.label}
+                        </span>
+                        {active && (
+                          <span className="h-[3px] w-[3px] rounded-full bg-amber-200/80" />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {/* Book Now CTA in mobile */}
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.5 }}
+                  type="button"
+                  onClick={() => handleAnchor("contact")}
+                  className="mt-10 w-full rounded-full border border-amber-200/20 bg-amber-200/[0.06] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/80 transition-all hover:bg-amber-200/[0.12] hover:text-amber-200"
+                >
+                  Book a Session
+                </motion.button>
+              </div>
+
+              {/* Mobile footer */}
+              <div className="border-t border-white/[0.06] px-8 py-8">
+                <div className="mb-6 flex justify-center">
                   <img
                     src="/logo.jpg"
                     alt="Logo"
-                    className="h-12 w-12 rounded-full border border-white/10 object-cover"
+                    className="h-10 w-10 rounded-full border border-white/10 object-cover"
                   />
                 </div>
-                <div className="h-px w-full bg-white/10" />
-                <div className="mt-8 flex gap-6">
-                  {/* Social links could go here */}
+                <div className="flex items-center justify-center gap-6">
                   <a
                     href={photographer.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/40 hover:text-white transition-colors"
+                    className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/30 transition-colors hover:text-amber-200/70"
                   >
                     Instagram
+                  </a>
+                  <span className="h-3 w-px bg-white/10" />
+                  <a
+                    href={photographer.youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/30 transition-colors hover:text-amber-200/70"
+                  >
+                    YouTube
                   </a>
                 </div>
               </div>
@@ -413,7 +575,7 @@ function Navigation() {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
 
