@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Lightbox from "../components/Lightbox.jsx";
 import { photos } from "../data/portfolio";
 
@@ -9,19 +10,36 @@ const filters = [
 ];
 
 export default function GalleryPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategory = searchParams.get("category") || "All";
+  const [activeFilter, setActiveFilter] = useState(
+    filters.includes(initialCategory) ? initialCategory : "All",
+  );
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [visibleCount, setVisibleCount] = useState(12);
   const sentinelRef = useRef(null);
 
-  const visiblePhotos = useMemo(
-    () => photos.slice(0, visibleCount),
-    [visibleCount],
+  const filteredPhotos = useMemo(
+    () =>
+      activeFilter === "All"
+        ? photos
+        : photos.filter((p) => p.category === activeFilter),
+    [activeFilter],
   );
+
+  const visiblePhotos = useMemo(
+    () => filteredPhotos.slice(0, visibleCount),
+    [filteredPhotos, visibleCount],
+  );
+
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [activeFilter]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && visibleCount < photos.length) {
+        if (entries[0].isIntersecting && visibleCount < filteredPhotos.length) {
           setVisibleCount((prev) => prev + 8);
         }
       },
@@ -30,7 +48,17 @@ export default function GalleryPage() {
 
     if (sentinelRef.current) observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [visibleCount]);
+  }, [visibleCount, filteredPhotos.length]);
+
+  const handleFilterClick = (filter) => {
+    setActiveFilter(filter);
+    if (filter === "All") {
+      searchParams.delete("category");
+    } else {
+      searchParams.set("category", filter);
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
 
   return (
     <motion.main
@@ -55,6 +83,24 @@ export default function GalleryPage() {
           </p>
         </div>
 
+        {/* Category Filter Buttons */}
+        <div className="mb-10 flex flex-wrap gap-3">
+          {filters.map((filter) => (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => handleFilterClick(filter)}
+              className={`rounded-full border px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] transition-all duration-300 sm:text-xs ${
+                activeFilter === filter
+                  ? "border-amber-200/40 bg-amber-200/[0.12] text-amber-200"
+                  : "border-white/10 bg-white/[0.03] text-white/50 hover:border-white/20 hover:text-white/80"
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+
         <div className="columns-1 gap-4 space-y-4 sm:columns-2 md:columns-3 lg:columns-4 sm:gap-6 sm:space-y-6">
           {visiblePhotos.map((photo, index) => (
             <motion.div
@@ -70,7 +116,12 @@ export default function GalleryPage() {
                 src={photo.url || photo.image}
                 alt={photo.title || "Gallery"}
                 loading="lazy"
-                className="w-full transition-transform duration-700 group-hover:scale-105"
+                className="w-full transition-all duration-700 group-hover:scale-105"
+                onLoad={(e) => {
+                  e.target.classList.remove("opacity-0");
+                  e.target.classList.add("opacity-100");
+                }}
+                style={{ opacity: 0, transition: "opacity 0.6s ease" }}
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </motion.div>
@@ -81,7 +132,7 @@ export default function GalleryPage() {
           ref={sentinelRef}
           className="flex h-32 items-center justify-center text-[10px] uppercase tracking-[0.4em] text-white/20 sm:text-xs"
         >
-          {visibleCount < photos.length
+          {visibleCount < filteredPhotos.length
             ? "Loading More Frames"
             : "End Of Collection"}
         </div>

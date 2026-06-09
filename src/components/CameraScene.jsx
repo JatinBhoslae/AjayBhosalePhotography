@@ -1,4 +1,11 @@
-import React, { Suspense, useRef, useMemo, Component, useEffect } from "react";
+import React, {
+  Suspense,
+  useRef,
+  useMemo,
+  Component,
+  useEffect,
+  useState,
+} from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Float,
@@ -160,41 +167,59 @@ class SceneErrorBoundary extends Component {
 }
 
 export const HeroCameraCanvas = ({ scrollProgress }) => {
+  const containerRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       className="fixed inset-0 z-[5] pointer-events-none"
       style={{ background: "transparent" }}
     >
-      <SceneErrorBoundary>
-        <Canvas
-          shadows
-          dpr={[1, 2]}
-          camera={{ position: [0, 0, 5], fov: 45 }}
-          gl={{
-            antialias: true,
-            alpha: true,
-            powerPreference: "high-performance",
-          }}
-          eventSource={document.body}
-          eventPrefix="client"
-          className="pointer-events-none"
-          onCreated={({ gl }) => {
-            gl.setClearColor(0x000000, 0); // Ensure clear color is transparent
-          }}
-        >
-          <Suspense fallback={null}>
-            <CameraModel progress={scrollProgress} />
-            <Environment preset="studio" />
-            <ContactShadows
-              position={[1.4, -1.2, 0]}
-              opacity={0.3}
-              scale={6}
-              blur={2.5}
-              far={4.5}
-            />
-          </Suspense>
-        </Canvas>
-      </SceneErrorBoundary>
+      {isVisible && (
+        <SceneErrorBoundary>
+          <Canvas
+            shadows
+            dpr={[1, 2]}
+            camera={{ position: [0, 0, 5], fov: 45 }}
+            gl={{
+              antialias: true,
+              alpha: true,
+              powerPreference: "high-performance",
+            }}
+            eventSource={document.body}
+            eventPrefix="client"
+            className="pointer-events-none"
+            onCreated={({ gl }) => {
+              gl.setClearColor(0x000000, 0);
+            }}
+          >
+            <Suspense fallback={null}>
+              <CameraModel progress={scrollProgress} />
+              <Environment preset="studio" />
+              <ContactShadows
+                position={[1.4, -1.2, 0]}
+                opacity={0.3}
+                scale={6}
+                blur={2.5}
+                far={4.5}
+              />
+            </Suspense>
+          </Canvas>
+        </SceneErrorBoundary>
+      )}
     </div>
   );
 };

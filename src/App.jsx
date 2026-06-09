@@ -16,12 +16,54 @@ import {
   useNavigate,
   useNavigationType,
 } from "react-router-dom";
+import { Component } from "react";
 import { photographer } from "./data/portfolio";
 import { useLenis } from "./hooks/useLenis.js";
+
+// App-level Error Boundary — catches render crashes and shows a fallback UI
+// instead of a white screen.
+class AppErrorBoundary extends Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, info) {
+    console.error("AppErrorBoundary caught:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[#050505] px-6 text-center">
+          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.4em] text-amber-200/60">
+            Something went wrong
+          </p>
+          <h1 className="font-display text-3xl text-white sm:text-4xl">
+            An unexpected error occurred
+          </h1>
+          <p className="mt-4 max-w-md text-sm text-white/40">
+            {this.state.error?.message || "Please try refreshing the page."}
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-8 rounded-full border border-white/15 bg-white/[0.05] px-8 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70 transition hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200"
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import GalleryPage from "./pages/GalleryPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import ProjectsPage from "./pages/ProjectsPage.jsx";
 import StoryPage from "./pages/StoryPage.jsx";
+import ServicesPage from "./pages/ServicesPage.jsx";
 
 function BackgroundMusic({ isVisible }) {
   const [isMuted, setIsMuted] = useState(false);
@@ -29,7 +71,7 @@ function BackgroundMusic({ isVisible }) {
 
   useEffect(() => {
     if (isVisible && audioRef.current) {
-      audioRef.current.volume = 0.2;
+      audioRef.current.volume = 0.1;
       audioRef.current.play().catch((err) => {
         console.log("Autoplay blocked or audio error:", err);
       });
@@ -299,6 +341,7 @@ function Navigation() {
     { label: "About", section: "about" },
     { label: "Gallery", section: "captured" },
     { label: "Projects", section: "projects" },
+    { label: "Services", section: null, path: "/services" },
     { label: "Contact", section: "contact" },
   ];
 
@@ -354,17 +397,26 @@ function Navigation() {
             {navItems.map((item) => {
               const isGallery = item.section === "captured";
               const isProjects = item.section === "projects";
+              const isServices = item.path === "/services";
               const active =
                 (item.path && location.pathname === item.path) ||
                 (isGallery && location.pathname === "/gallery") ||
                 (isProjects && location.pathname === "/projects") ||
+                (isServices && location.pathname === "/services") ||
                 (location.pathname === "/" && activeSection === item.section);
 
               return (
                 <button
                   key={item.label}
                   type="button"
-                  onClick={() => handleAnchor(item.section)}
+                  onClick={() => {
+                    if (item.path) {
+                      setIsMobileMenuOpen(false);
+                      navigate(item.path);
+                    } else {
+                      handleAnchor(item.section);
+                    }
+                  }}
                   className="group relative px-4 py-2"
                 >
                   <span
@@ -493,10 +545,12 @@ function Navigation() {
                   {navItems.map((item, index) => {
                     const isGallery = item.section === "captured";
                     const isProjects = item.section === "projects";
+                    const isServices = item.path === "/services";
                     const active =
                       (item.path && location.pathname === item.path) ||
                       (isGallery && location.pathname === "/gallery") ||
                       (isProjects && location.pathname === "/projects") ||
+                      (isServices && location.pathname === "/services") ||
                       (location.pathname === "/" &&
                         activeSection === item.section);
 
@@ -511,7 +565,14 @@ function Navigation() {
                           duration: 0.5,
                           ease: [0.65, 0, 0.35, 1],
                         }}
-                        onClick={() => handleAnchor(item.section)}
+                        onClick={() => {
+                          if (item.path) {
+                            setIsMobileMenuOpen(false);
+                            navigate(item.path);
+                          } else {
+                            handleAnchor(item.section);
+                          }
+                        }}
                         className={`group flex items-center justify-between border-b border-white/[0.04] py-5 text-left transition-all duration-300 ${
                           active
                             ? "text-white"
@@ -653,6 +714,52 @@ function ScrollToTopButton() {
   );
 }
 
+function CustomCursor() {
+  const cursorRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    // Only activate on desktop (fine pointer)
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
+    const moveCursor = (e) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${e.clientX}px`;
+        cursorRef.current.style.top = `${e.clientY}px`;
+      }
+    };
+
+    const handleMouseOver = (e) => {
+      const target = e.target.closest(
+        "a, button, input, textarea, [role='button'], [data-cursor='hover']",
+      );
+      setIsHovering(!!target);
+    };
+
+    window.addEventListener("mousemove", moveCursor);
+    document.addEventListener("mouseover", handleMouseOver);
+    return () => {
+      window.removeEventListener("mousemove", moveCursor);
+      document.removeEventListener("mouseover", handleMouseOver);
+    };
+  }, []);
+
+  // Only render on desktop
+  if (
+    typeof window !== "undefined" &&
+    !window.matchMedia("(pointer: fine)").matches
+  ) {
+    return null;
+  }
+
+  return (
+    <div
+      ref={cursorRef}
+      className={`custom-cursor ${isHovering ? "cursor-hover" : ""}`}
+    />
+  );
+}
+
 function App() {
   const location = useLocation();
   const [introComplete, setIntroComplete] = useState(false);
@@ -661,31 +768,35 @@ function App() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
-      <ScrollToTop />
-      <CinematicBackground />
-      <ScrollToTopButton />
-      <BackgroundMusic isVisible={introComplete} />
-      <div className="relative z-10">
-        {introComplete && <Navigation />}
-        <AnimatePresence mode="wait">
-          {!introComplete && (
-            <IntroExperience
-              key="intro"
-              onComplete={() => setIntroComplete(true)}
-            />
-          )}
-        </AnimatePresence>
-        <AnimatePresence mode="wait">
-          {introComplete && (
-            <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/gallery" element={<GalleryPage />} />
-              <Route path="/projects" element={<ProjectsPage />} />
-              <Route path="/story/:slug" element={<StoryPage />} />
-            </Routes>
-          )}
-        </AnimatePresence>
-      </div>
+      <AppErrorBoundary>
+        <CustomCursor />
+        <ScrollToTop />
+        <CinematicBackground />
+        <ScrollToTopButton />
+        <BackgroundMusic isVisible={introComplete} />
+        <div className="relative z-10">
+          {introComplete && <Navigation />}
+          <AnimatePresence mode="wait">
+            {!introComplete && (
+              <IntroExperience
+                key="intro"
+                onComplete={() => setIntroComplete(true)}
+              />
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            {introComplete && (
+              <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/gallery" element={<GalleryPage />} />
+                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/story/:slug" element={<StoryPage />} />
+              </Routes>
+            )}
+          </AnimatePresence>
+        </div>
+      </AppErrorBoundary>
     </div>
   );
 }

@@ -6,7 +6,7 @@ export const photographer = {
   subtitle: "Visual Storyteller",
   shortBio:
     "I capture stories, emotions, and moments that would otherwise be forgotten.",
-  location: "Pune, Maharashtra",
+  location: "Satara, Maharashtra",
   email: "ajaybhosale@dummy.com",
   phone: "+91 8180857920",
   instagram: "chitrography_films",

@@ -109,7 +109,7 @@ export default function StoryPage() {
             {related.map((item) => (
               <Link
                 key={item.slug}
-                to={`/stories/${item.slug}`}
+                to={`/story/${item.slug}`}
                 className="overflow-hidden rounded-[1.7rem] border border-white/10 bg-white/[0.04]"
               >
                 <img

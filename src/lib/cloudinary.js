@@ -1,17 +1,23 @@
-const CLOUDINARY_CLOUD_NAME = 'demo';
+// Set your Cloudinary cloud name via VITE_CLOUDINARY_CLOUD_NAME in .env
+// Example: VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
+// Until configured, falls back to 'demo' (sample images only).
+const CLOUDINARY_CLOUD_NAME =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env?.VITE_CLOUDINARY_CLOUD_NAME) ||
+  "demo";
 
 function buildTransforms(transforms) {
-  return transforms.filter(Boolean).join(',');
+  return transforms.filter(Boolean).join(",");
 }
 
 export function cloudinaryImage(publicId, options = {}) {
   const {
     width = 1600,
     height,
-    crop = 'fill',
-    gravity = 'auto',
-    quality = 'auto',
-    format = 'auto',
+    crop = "fill",
+    gravity = "auto",
+    quality = "auto",
+    format = "auto",
     extra = [],
   } = options;
 
@@ -32,9 +38,9 @@ export function cloudinaryVideo(publicId, options = {}) {
   const {
     width = 1920,
     height = 1080,
-    crop = 'fill',
-    quality = 'auto',
-    format = 'auto',
+    crop = "fill",
+    quality = "auto",
+    format = "auto",
     extra = [],
   } = options;
 

@@ -1,0 +1,5 @@
+# https://ajaybhosale.com — replace with your actual domain
+User-agent: *
+Allow: /
+
+Sitemap: https://ajaybhosale.com/sitemap.xml

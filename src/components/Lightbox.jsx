@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { IoArrowBack, IoArrowForward, IoClose } from "react-icons/io5";
 
 export default function Lightbox({ items, index, onClose, onChange }) {
+  const touchStartX = useRef(null);
+
   useEffect(() => {
     if (index === null) {
       return undefined;
@@ -30,6 +32,22 @@ export default function Lightbox({ items, index, onClose, onChange }) {
 
   const item = items[index];
 
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    const threshold = 50;
+    if (diff > threshold) {
+      onChange((index - 1 + items.length) % items.length);
+    } else if (diff < -threshold) {
+      onChange((index + 1) % items.length);
+    }
+    touchStartX.current = null;
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -37,6 +55,8 @@ export default function Lightbox({ items, index, onClose, onChange }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <button
           type="button"
