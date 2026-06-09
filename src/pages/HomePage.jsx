@@ -88,7 +88,7 @@ function HeroSection() {
           </span>
         </Reveal>
         <Reveal delay={0.1}>
-          <h1 className="mx-auto max-w-5xl font-display text-5xl leading-[0.9] text-white sm:text-7xl md:text-8xl lg:text-9xl">
+          <h1 className="mx-auto max-w-5xl font-display text-4xl min-[380px]:text-5xl leading-[0.9] text-white sm:text-7xl md:text-8xl lg:text-9xl">
             Capturing the <br />
             <span className="text-white/40 italic">essence of life.</span>
           </h1>
@@ -114,7 +114,7 @@ function HeroSection() {
                   .getElementById("captured")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
-              className="group relative w-full overflow-hidden rounded-full bg-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-black transition-all sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
+              className="group relative w-full overflow-hidden rounded-full bg-white px-8 py-4 text-[10px] font-bold uppercase tracking-[0.3em] text-black transition-all sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
             >
               <span className="relative z-10">Explore Gallery</span>
               <motion.div className="absolute inset-0 z-0 bg-gradient-to-r from-amber-100 to-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -133,7 +133,7 @@ function HeroSection() {
                   .getElementById("contact")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
-              className="group relative w-full overflow-hidden rounded-full border border-white/20 bg-white/5 px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white backdrop-blur-sm transition-all sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
+              className="group relative w-full overflow-hidden rounded-full border border-white/20 bg-white/5 px-8 py-4 text-[10px] font-bold uppercase tracking-[0.3em] text-white backdrop-blur-sm transition-all sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
             >
               <span className="relative z-10">Work with me</span>
               <motion.div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
@@ -261,11 +261,11 @@ function AboutSection() {
                   onLoad={(e) => e.target.classList.add("loaded")}
                 />
               </div>
-              <div className="absolute -bottom-4 -left-4 rounded-2xl border border-white/20 bg-black/80 p-5 backdrop-blur-xl sm:-bottom-6 sm:-left-6 sm:rounded-3xl sm:p-8">
-                <p className="font-display text-2xl text-amber-200 sm:text-4xl">
+              <div className="absolute -bottom-2 -left-2 rounded-xl border border-white/20 bg-black/80 p-4 backdrop-blur-xl sm:-bottom-6 sm:-left-6 sm:rounded-3xl sm:p-8">
+                <p className="font-display text-xl text-amber-200 sm:text-4xl">
                   {photographer.name}
                 </p>
-                <p className="text-[10px] uppercase tracking-widest text-white/50 sm:text-xs">
+                <p className="text-[9px] uppercase tracking-widest text-white/50 sm:text-xs">
                   Cinematographer
                 </p>
               </div>
@@ -303,7 +303,7 @@ function CapturedMomentsSection() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-16 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 grid-flow-dense">
           {displayPhotos.map((photo, index) => (
             <Reveal
               key={photo.slug || index}
@@ -697,44 +697,46 @@ function TestimonialsSection() {
 
       {/* Mobile carousel */}
       <div className="md:hidden">
-        <div
-          className="testimonials-carousel overflow-hidden rounded-[2.5rem]"
-          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
-        >
-          {testimonials.map((t) => (
-            <div
-              key={t.name}
-              className="group relative border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
-            >
-              <div className="absolute right-10 top-10 text-6xl text-white/5">
-                "
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="h-14 w-14 overflow-hidden rounded-full border border-white/20">
-                  <img
-                    src={t.image}
-                    alt={t.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
+        <div className="overflow-hidden rounded-[2.5rem]">
+          <div
+            className="testimonials-carousel"
+            style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+          >
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="group relative border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
+              >
+                <div className="absolute right-10 top-10 text-6xl text-white/5">
+                  "
                 </div>
-                <div>
-                  <h4 className="font-display text-xl text-white">{t.name}</h4>
-                  <p className="text-xs uppercase tracking-widest text-white/40">
-                    {t.role}
-                  </p>
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 overflow-hidden rounded-full border border-white/20">
+                    <img
+                      src={t.image}
+                      alt={t.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div>
+                     <h4 className="font-display text-xl text-white">{t.name}</h4>
+                     <p className="text-xs uppercase tracking-widest text-white/40">
+                       {t.role}
+                     </p>
+                  </div>
+                </div>
+                <p className="mt-8 text-lg italic leading-relaxed text-white/70">
+                  "{t.review}"
+                </p>
+                <div className="mt-6 flex gap-1 text-amber-200/60">
+                  {Array.from({ length: t.rating }).map((_, i) => (
+                    <IoStar key={i} size={14} />
+                  ))}
                 </div>
               </div>
-              <p className="mt-8 text-lg italic leading-relaxed text-white/70">
-                "{t.review}"
-              </p>
-              <div className="mt-6 flex gap-1 text-amber-200/60">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <IoStar key={i} size={14} />
-                ))}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         {/* Dots */}
         <div className="mt-6 flex justify-center gap-2">
@@ -1064,7 +1066,7 @@ function ContactSection() {
 
   return (
     <section id="contact" className="pb-32 pt-24 sm:pb-40 sm:pt-32">
-      <div className="mx-auto max-w-7xl px-6 sm:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-8">
         <Reveal>
           <p className="text-[10px] uppercase tracking-[0.45em] text-amber-200/70 sm:text-xs">
             Work With Me
@@ -1075,12 +1077,12 @@ function ContactSection() {
         </Reveal>
 
         <div className="mt-16 grid gap-12 lg:mt-20 lg:grid-cols-[1fr_1.5fr] lg:gap-24">
-          <Reveal>
-            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 sm:p-8 space-y-10">
+          <Reveal className="min-w-0 w-full">
+            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-8 space-y-10">
               <div className="space-y-8">
                 <a
                   href={`mailto:${photographer.email}`}
-                  className="group flex items-center gap-5 transition-transform hover:translate-x-2"
+                  className="group flex items-center gap-4 sm:gap-5 transition-transform hover:translate-x-2 min-w-0 w-full"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
                     <IoMailOutline size={24} />
@@ -1095,7 +1097,7 @@ function ContactSection() {
                   </div>
                 </a>
 
-                <div className="group flex items-center gap-5">
+                <div className="group flex items-center gap-4 sm:gap-5 min-w-0 w-full">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
                     {copied ? (
                       <IoCheckmarkOutline size={24} />
@@ -1107,7 +1109,7 @@ function ContactSection() {
                     <p className="text-[10px] uppercase tracking-widest text-white/40">
                       Phone Number
                     </p>
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-base text-white sm:text-lg">
                         {photographer.phone}
                       </p>
@@ -1125,7 +1127,7 @@ function ContactSection() {
                   href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-5 transition-transform hover:translate-x-2"
+                  className="group flex items-center gap-4 sm:gap-5 transition-transform hover:translate-x-2 min-w-0 w-full"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#25D366]/10 text-[#25D366] transition-colors group-hover:bg-[#25D366] group-hover:text-black">
                     <IoLogoWhatsapp size={24} />
@@ -1148,16 +1150,16 @@ function ContactSection() {
                   href={photographer.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-5 transition-transform hover:translate-x-2"
+                  className="group flex items-center gap-4 sm:gap-5 transition-transform hover:translate-x-2 min-w-0 w-full"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
                     <IoLogoInstagram size={24} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[10px] uppercase tracking-widest text-white/40">
                       Instagram
                     </p>
-                    <p className="text-base text-white sm:text-lg">
+                    <p className="truncate text-base text-white sm:text-lg">
                       @{photographer.instagram}
                     </p>
                   </div>
@@ -1167,16 +1169,16 @@ function ContactSection() {
                   href={photographer.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-5 transition-transform hover:translate-x-2"
+                  className="group flex items-center gap-4 sm:gap-5 transition-transform hover:translate-x-2 min-w-0 w-full"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 text-amber-200 transition-colors group-hover:bg-amber-200 group-hover:text-black">
                     <IoLogoYoutube size={24} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[10px] uppercase tracking-widest text-white/40">
                       YouTube
                     </p>
-                    <p className="text-base text-white sm:text-lg">
+                    <p className="truncate text-base text-white sm:text-lg">
                       {photographer.youtube}
                     </p>
                   </div>
@@ -1185,8 +1187,8 @@ function ContactSection() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.15}>
-            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 sm:p-8">
+          <Reveal className="min-w-0 w-full" delay={0.15}>
+            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-8">
               <form
                 className="grid gap-6 sm:grid-cols-2"
                 onSubmit={(e) => {
@@ -1210,7 +1212,7 @@ function ContactSection() {
                     required
                     minLength={2}
                     placeholder="Your name"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60 sm:px-6 sm:py-4"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1224,7 +1226,7 @@ function ContactSection() {
                     pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
                     title="Please enter a valid email address"
                     placeholder="your@email.com"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60 sm:px-6 sm:py-4"
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
@@ -1237,13 +1239,13 @@ function ContactSection() {
                     required
                     minLength={10}
                     placeholder="Tell me about your vision..."
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60 sm:px-6 sm:py-4"
                   />
                 </div>
                 <div className="sm:col-span-2">
                   <button
                     type="submit"
-                    className="w-full rounded-full bg-white py-5 text-[10px] font-bold uppercase tracking-[0.45em] text-black transition hover:bg-amber-100 sm:py-6 sm:text-xs"
+                    className="w-full rounded-full bg-white py-4 text-[10px] font-bold uppercase tracking-[0.45em] text-black transition hover:bg-amber-100 sm:py-6 sm:text-xs"
                   >
                     Send Message
                   </button>

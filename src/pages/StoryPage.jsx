@@ -84,7 +84,7 @@ export default function StoryPage() {
             <img
               src={photo.image}
               alt={photo.title}
-              className="h-[32rem] w-full rounded-[2rem] object-cover"
+              className="h-96 sm:h-[32rem] w-full rounded-[2rem] object-cover"
             />
             <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
               <p className="text-xs uppercase tracking-[0.35em] text-white/40">

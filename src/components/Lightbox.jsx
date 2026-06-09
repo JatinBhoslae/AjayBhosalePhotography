@@ -69,7 +69,7 @@ export default function Lightbox({ items, index, onClose, onChange }) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 px-4 py-8 backdrop-blur-xl"
+        className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 px-4 py-8 backdrop-blur-xl overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -92,7 +92,7 @@ export default function Lightbox({ items, index, onClose, onChange }) {
 
         <button
           type="button"
-          className="absolute left-4 rounded-full border border-white/15 bg-white/10 p-3 text-white transition hover:bg-white/15 sm:left-8"
+          className="hidden md:flex absolute left-4 rounded-full border border-white/15 bg-white/10 p-3 text-white transition hover:bg-white/15 sm:left-8"
           onClick={() => onChange((index - 1 + items.length) % items.length)}
           aria-label="Previous image"
         >
@@ -109,7 +109,7 @@ export default function Lightbox({ items, index, onClose, onChange }) {
           <img
             src={item.altImage ?? item.image}
             alt={item.title}
-            className="max-h-[78vh] w-full rounded-[2rem] object-cover shadow-2xl"
+            className="max-h-[70vh] md:max-h-[78vh] w-auto h-auto mx-auto rounded-2xl md:rounded-[2rem] object-contain shadow-2xl"
           />
           <figcaption className="mt-5 flex flex-col gap-4 text-white/80 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -177,7 +177,7 @@ export default function Lightbox({ items, index, onClose, onChange }) {
 
         <button
           type="button"
-          className="absolute right-4 rounded-full border border-white/15 bg-white/10 p-3 text-white transition hover:bg-white/15 sm:right-8"
+          className="hidden md:flex absolute right-4 rounded-full border border-white/15 bg-white/10 p-3 text-white transition hover:bg-white/15 sm:right-8"
           onClick={() => onChange((index + 1) % items.length)}
           aria-label="Next image"
         >

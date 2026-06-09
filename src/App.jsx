@@ -159,7 +159,7 @@ function WhatsAppButton({ isVisible }) {
           initial={{ opacity: 0, scale: 0.8, x: 20 }}
           animate={{ opacity: 1, scale: 1, x: 0 }}
           exit={{ opacity: 0, scale: 0.8, x: 20 }}
-          className="fixed bottom-34 right-5 z-[100] flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_30px_rgba(37,211,102,0.3)] transition-all hover:scale-110 hover:shadow-[0_10px_40px_rgba(37,211,102,0.4)] active:scale-95 sm:bottom-44 sm:right-10 sm:h-14 sm:w-14"
+          className="fixed bottom-[8.5rem] right-5 z-[100] flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_30px_rgba(37,211,102,0.3)] transition-all hover:scale-110 hover:shadow-[0_10px_40px_rgba(37,211,102,0.4)] active:scale-95 sm:bottom-[11.5rem] sm:right-10 sm:h-14 sm:w-14"
           aria-label="Chat on WhatsApp"
         >
           <IoLogoWhatsapp size={26} />
@@ -562,7 +562,7 @@ function Navigation() {
             </div>
             <button
               type="button"
-              onClick={() => handleAnchor("contact")}
+              onClick={() => handleAnchor("services")}
               className="ml-2 rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/70 transition-all duration-300 hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200"
             >
               Book Now
@@ -707,7 +707,7 @@ function Navigation() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
                   type="button"
-                  onClick={() => handleAnchor("contact")}
+                  onClick={() => handleAnchor("services")}
                   className="mt-10 w-full rounded-full border border-amber-200/20 bg-amber-200/[0.06] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/80 transition-all hover:bg-amber-200/[0.12] hover:text-amber-200"
                 >
                   Book a Session

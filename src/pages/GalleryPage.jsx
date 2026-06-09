@@ -110,7 +110,7 @@ export default function GalleryPage() {
               viewport={{ once: true }}
               transition={{ delay: (index % 8) * 0.05 }}
               onClick={() => setSelectedIndex(index)}
-              className="group relative cursor-zoom-in overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:rounded-3xl"
+              className="group relative cursor-zoom-in overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:rounded-3xl break-inside-avoid inline-block w-full"
             >
               <img
                 src={photo.url || photo.image}
