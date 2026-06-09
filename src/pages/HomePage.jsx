@@ -21,6 +21,7 @@ import {
 } from "react-icons/io5";
 import { HeroCameraCanvas } from "../components/CameraScene.jsx";
 import Reveal from "../components/Reveal.jsx";
+import { useInstagramFeed } from "../hooks/useInstagramFeed.js";
 import {
   categories,
   photographer,
@@ -191,41 +192,9 @@ function AnimatedCounter({ end, suffix = "", duration = 2 }) {
 const statsDisplay = [
   { value: 12, suffix: "+", label: "Years Experience" },
   { value: 100, suffix: "+", label: "Orders Delivered" },
-  { value: 85, suffix: "+", label: "Global Projects" },
-  { value: 14, suffix: "", label: "Awards Won" },
 ];
 
-function StatsSection() {
-  return (
-    <section className="relative py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-6 sm:px-8">
-        <Reveal>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
-            {statsDisplay.map((stat, i) => (
-              <Reveal key={stat.label} delay={i * 0.1}>
-                <div className="group relative overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 text-center backdrop-blur-xl transition-all duration-500 hover:border-amber-200/20 hover:bg-white/[0.04] sm:p-8">
-                  <div className="absolute inset-0 bg-gradient-to-b from-amber-200/[0.04] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                  <div className="relative">
-                    <p className="font-display text-4xl font-bold text-white sm:text-5xl md:text-6xl">
-                      <AnimatedCounter
-                        end={stat.value}
-                        suffix={stat.suffix}
-                        duration={2}
-                      />
-                    </p>
-                    <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/40 sm:text-xs">
-                      {stat.label}
-                    </p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
+// Stats are rendered inline inside AboutSection beside Experience
 
 function AboutSection() {
   return (
@@ -249,13 +218,23 @@ function AboutSection() {
                 precision with a deep appreciation for authentic emotion.
               </p>
               <div className="mt-10 border-t border-white/10 pt-10">
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/40 sm:text-xs">
-                    Experience
-                  </p>
-                  <p className="mt-2 text-xl font-medium text-white sm:text-2xl">
-                    5+ Years
-                  </p>
+                <div className="grid grid-cols-2 gap-6 sm:grid-cols-2">
+                  {statsDisplay.map((stat, i) => (
+                    <Reveal key={stat.label} delay={i * 0.08}>
+                      <div className="group rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 backdrop-blur-sm transition-all hover:border-amber-200/20 hover:bg-white/[0.04]">
+                        <p className="font-display text-2xl font-bold text-white sm:text-3xl">
+                          <AnimatedCounter
+                            end={stat.value}
+                            suffix={stat.suffix}
+                            duration={2}
+                          />
+                        </p>
+                        <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.3em] text-white/40 sm:text-[10px]">
+                          {stat.label}
+                        </p>
+                      </div>
+                    </Reveal>
+                  ))}
                 </div>
               </div>
             </Reveal>
@@ -609,16 +588,19 @@ function ServicesPreviewSection() {
                     ))}
                   </ul>
 
-                  <Link
-                    to="/#contact"
-                    className="group/btn inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70 transition-all duration-300 hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200 sm:text-xs"
+                  <a
+                    href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hi! I'm interested in the ${plan.name} package (${plan.price}). Let's discuss booking.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/btn inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366]/20 bg-[#25D366]/[0.06] py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#25D366] transition-all duration-300 hover:bg-[#25D366]/[0.14] hover:text-[#25D366] sm:text-xs"
                   >
+                    <IoLogoWhatsapp size={14} />
                     Book {plan.name}
                     <IoArrowForward
                       size={14}
                       className="transition-transform group-hover/btn:translate-x-1"
                     />
-                  </Link>
+                  </a>
                 </div>
               </Reveal>
             );
@@ -634,12 +616,15 @@ function ServicesPreviewSection() {
               Every story is unique. Let's design a bespoke package tailored to
               your vision, timeline, and budget.
             </p>
-            <Link
-              to="/#contact"
-              className="mt-8 inline-flex items-center gap-2 rounded-full border border-amber-200/25 bg-amber-200/[0.08] px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200 transition-all hover:bg-amber-200/[0.14] hover:text-amber-200 sm:text-xs"
+            <a
+              href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Hi! I'm interested in a custom photography package. Let's discuss my requirements.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#25D366]/30 bg-[#25D366]/[0.10] px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#25D366] transition-all hover:bg-[#25D366]/[0.20] hover:text-[#25D366] sm:text-xs"
             >
-              Get in Touch <IoArrowForward size={14} />
-            </Link>
+              <IoLogoWhatsapp size={16} />
+              Get in Touch on WhatsApp <IoArrowForward size={14} />
+            </a>
           </div>
         </Reveal>
       </div>
@@ -692,6 +677,249 @@ function TestimonialsSection() {
         ))}
       </div>
     </SectionShell>
+  );
+}
+
+function InstagramFeedSection() {
+  const {
+    posts: instaPosts,
+    loading: instaLoading,
+    error: instaError,
+    isConfigured: instaConfigured,
+    refetch: refetchInsta,
+  } = useInstagramFeed(6);
+
+  // Fallback to local photos if API is not configured
+  const fallbackPhotos = photos.slice(0, 6);
+  const hasRealPosts = instaConfigured && instaPosts.length > 0;
+
+  return (
+    <section id="instagram" className="relative py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8">
+        <Reveal>
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-amber-500/10 text-white/80">
+                <IoLogoInstagram size={28} />
+              </div>
+              <div className="text-left">
+                <p className="font-display text-xl font-semibold text-white">
+                  @{photographer.instagram}
+                </p>
+                <p className="text-[10px] uppercase tracking-widest text-white/40">
+                  Follow for behind-the-scenes
+                </p>
+              </div>
+            </div>
+            <h2 className="font-display text-4xl leading-tight text-white sm:text-5xl">
+              Latest from Instagram.
+            </h2>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/50 sm:text-base">
+              Fresh frames, behind-the-scenes moments, and visual stories
+              updated daily.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Loading skeleton */}
+        {instaLoading && (
+          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square animate-pulse rounded-2xl border border-white/[0.06] bg-white/[0.03] sm:rounded-3xl"
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Real Instagram posts from Graph API */}
+        {!instaLoading && hasRealPosts && (
+          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            {instaPosts.map((post, index) => (
+              <Reveal key={post.id} delay={index * 0.06}>
+                <a
+                  href={post.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] sm:rounded-3xl"
+                >
+                  <img
+                    src={post.imageUrl}
+                    alt={post.caption || "Instagram post"}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onLoad={(e) => {
+                      e.target.classList.remove("opacity-0");
+                      e.target.classList.add("opacity-100");
+                    }}
+                    style={{ opacity: 0, transition: "opacity 0.6s ease" }}
+                  />
+
+                  {/* Video / Carousel indicator */}
+                  {(post.isVideo || post.isCarousel) && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
+                        {post.isVideo ? (
+                          <svg
+                            className="h-3.5 w-3.5 text-white"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                          >
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        ) : (
+                          <svg
+                            className="h-3.5 w-3.5 text-white"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M9 3v18M3 9h18" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-500 group-hover:bg-black/40">
+                    <div className="opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <div className="flex flex-col items-center gap-2">
+                        <IoLogoInstagram size={28} className="text-white" />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/80">
+                          View Post
+                        </span>
+                        {/* Engagement stats */}
+                        <div className="flex items-center gap-3 text-[10px] text-white/70">
+                          <span className="flex items-center gap-1">
+                            <IoHeartOutline size={12} />
+                            {post.likes}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <svg
+                              className="h-3 w-3"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            {post.comments}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom caption bar */}
+                  {post.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <p className="line-clamp-2 text-xs text-white/90">
+                        {post.caption}
+                      </p>
+                    </div>
+                  )}
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        )}
+
+        {/* API error message */}
+        {!instaLoading && instaConfigured && instaError && !hasRealPosts && (
+          <div className="mt-8 text-center">
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/[0.06] px-4 py-2 text-xs text-amber-200/80">
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              Instagram feed temporarily unavailable
+              <button
+                onClick={refetchInsta}
+                className="ml-1 underline underline-offset-2 hover:text-amber-100"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Fallback: local portfolio photos when API is not configured */}
+        {!instaLoading && !hasRealPosts && (
+          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            {fallbackPhotos.map((photo, index) => (
+              <Reveal key={photo.slug || index} delay={index * 0.06}>
+                <a
+                  href={photographer.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] sm:rounded-3xl"
+                >
+                  <img
+                    src={photo.image}
+                    alt={photo.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onLoad={(e) => {
+                      e.target.classList.remove("opacity-0");
+                      e.target.classList.add("opacity-100");
+                    }}
+                    style={{ opacity: 0, transition: "opacity 0.6s ease" }}
+                  />
+                  {/* Hover overlay with Instagram icon */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-500 group-hover:bg-black/40">
+                    <motion.div
+                      initial={false}
+                      className="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <IoLogoInstagram size={28} className="text-white" />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/80">
+                          View Post
+                        </span>
+                      </div>
+                    </motion.div>
+                  </div>
+                  {/* Bottom caption bar */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <p className="text-[10px] font-medium uppercase tracking-widest text-white/70">
+                      {photo.location}
+                    </p>
+                    <p className="text-xs text-white/90">{photo.title}</p>
+                  </div>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        )}
+
+        <Reveal>
+          <div className="mt-10 text-center">
+            <a
+              href={photographer.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/70 transition-all hover:from-purple-500/20 hover:via-pink-500/20 hover:to-amber-500/20 hover:text-white sm:text-xs"
+            >
+              <IoLogoInstagram size={18} />
+              Follow @{photographer.instagram}
+              <IoArrowForward size={14} />
+            </a>
+          </div>
+        </Reveal>
+      </div>
+    </section>
   );
 }
 
@@ -829,35 +1057,57 @@ function ContactSection() {
 
           <Reveal delay={0.15}>
             <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 sm:p-8">
-              <form className="grid gap-6 sm:grid-cols-2">
+              <form
+                className="grid gap-6 sm:grid-cols-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target);
+                  const name = formData.get("name");
+                  const email = formData.get("email");
+                  const message = formData.get("message");
+                  const mailtoLink = `mailto:${photographer.email}?subject=${encodeURIComponent(`Inquiry from ${name}`)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`)}`;
+                  window.open(mailtoLink, "_blank");
+                  e.target.reset();
+                }}
+              >
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">
-                    Name
+                    Name <span className="text-red-400">*</span>
                   </label>
                   <input
+                    name="name"
                     type="text"
+                    required
+                    minLength={2}
                     placeholder="Your name"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">
-                    Email
+                    Email <span className="text-red-400">*</span>
                   </label>
                   <input
+                    name="email"
                     type="email"
-                    placeholder="Your email"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0"
+                    required
+                    pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+                    title="Please enter a valid email address"
+                    placeholder="your@email.com"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60"
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">
-                    Message
+                    Message <span className="text-red-400">*</span>
                   </label>
                   <textarea
+                    name="message"
                     rows={5}
+                    required
+                    minLength={10}
                     placeholder="Tell me about your vision..."
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60"
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -1042,11 +1292,11 @@ export default function HomePage() {
       <main className="relative z-20">
         <HeroSection />
         <AboutSection />
-        <StatsSection />
         <CapturedMomentsSection />
         <FeaturedProjectsSection />
         <ServicesPreviewSection />
         <TestimonialsSection />
+        <InstagramFeedSection />
         <ContactSection />
         <Footer />
       </main>

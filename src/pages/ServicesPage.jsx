@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import {
   IoCameraOutline,
   IoFilmOutline,
@@ -9,8 +8,10 @@ import {
   IoDiamondOutline,
   IoCheckmarkCircle,
   IoArrowForward,
+  IoLogoWhatsapp,
 } from "react-icons/io5";
 import Reveal from "../components/Reveal.jsx";
+import { photographer } from "../data/portfolio";
 
 const plans = [
   {
@@ -177,16 +178,19 @@ export default function ServicesPage() {
                   </ul>
 
                   {/* CTA */}
-                  <Link
-                    to="/#contact"
-                    className="group/btn inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70 transition-all duration-300 hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200 sm:text-xs"
+                  <a
+                    href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hi! I'm interested in the ${plan.name} package (${plan.price}). Let's discuss booking.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/btn inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366]/20 bg-[#25D366]/[0.06] py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#25D366] transition-all duration-300 hover:bg-[#25D366]/[0.14] hover:text-[#25D366] sm:text-xs"
                   >
+                    <IoLogoWhatsapp size={14} />
                     {plan.cta}
                     <IoArrowForward
                       size={14}
                       className="transition-transform group-hover/btn:translate-x-1"
                     />
-                  </Link>
+                  </a>
                 </div>
               </Reveal>
             );
@@ -239,12 +243,15 @@ export default function ServicesPage() {
               Every story is unique. Let's design a bespoke package tailored to
               your vision, timeline, and budget.
             </p>
-            <Link
-              to="/#contact"
-              className="mt-8 inline-flex items-center gap-2 rounded-full border border-amber-200/25 bg-amber-200/[0.08] px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200 transition-all hover:bg-amber-200/[0.14] hover:text-amber-200 sm:text-xs"
+            <a
+              href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Hi! I'm interested in a custom photography package. Let's discuss my requirements.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#25D366]/30 bg-[#25D366]/[0.10] px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#25D366] transition-all hover:bg-[#25D366]/[0.20] hover:text-[#25D366] sm:text-xs"
             >
-              Get in Touch <IoArrowForward size={14} />
-            </Link>
+              <IoLogoWhatsapp size={16} />
+              Get in Touch on WhatsApp <IoArrowForward size={14} />
+            </a>
           </div>
         </Reveal>
       </div>

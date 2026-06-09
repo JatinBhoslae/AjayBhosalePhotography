@@ -8,6 +8,8 @@ import {
   IoVolumeHighOutline,
   IoVolumeMuteOutline,
   IoLogoWhatsapp,
+  IoSunnyOutline,
+  IoMoonOutline,
 } from "react-icons/io5";
 import {
   Link,
@@ -20,6 +22,7 @@ import {
 import { Component } from "react";
 import { photographer } from "./data/portfolio";
 import { useLenis } from "./hooks/useLenis.js";
+import { useTheme } from "./ThemeContext.jsx";
 
 // App-level Error Boundary — catches render crashes and shows a fallback UI
 // instead of a white screen.
@@ -296,6 +299,38 @@ function IntroExperience({ onComplete }) {
   );
 }
 
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <motion.button
+      type="button"
+      onClick={toggleTheme}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/[0.05] text-white/70 backdrop-blur-md transition-all hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200"
+      aria-label={
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      }
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={theme}
+          initial={{ rotate: -90, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          exit={{ rotate: 90, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          {theme === "dark" ? (
+            <IoSunnyOutline size={16} />
+          ) : (
+            <IoMoonOutline size={16} />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </motion.button>
+  );
+}
+
 function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -321,6 +356,7 @@ function Navigation() {
       "about",
       "captured",
       "projects",
+      "services",
       "gallery-trigger",
       "contact",
     ]
@@ -365,7 +401,7 @@ function Navigation() {
     { label: "About", section: "about" },
     { label: "Gallery", section: "captured" },
     { label: "Projects", section: "projects" },
-    { label: "Services", section: null, path: "/services" },
+    { label: "Services", section: "services" },
     { label: "Contact", section: "contact" },
   ];
 
@@ -421,12 +457,9 @@ function Navigation() {
             {navItems.map((item) => {
               const isGallery = item.section === "captured";
               const isProjects = item.section === "projects";
-              const isServices = item.path === "/services";
               const active =
-                (item.path && location.pathname === item.path) ||
                 (isGallery && location.pathname === "/gallery") ||
                 (isProjects && location.pathname === "/projects") ||
-                (isServices && location.pathname === "/services") ||
                 (location.pathname === "/" && activeSection === item.section);
 
               return (
@@ -434,12 +467,7 @@ function Navigation() {
                   key={item.label}
                   type="button"
                   onClick={() => {
-                    if (item.path) {
-                      setIsMobileMenuOpen(false);
-                      navigate(item.path);
-                    } else {
-                      handleAnchor(item.section);
-                    }
+                    handleAnchor(item.section);
                   }}
                   className="group relative px-4 py-2"
                 >
@@ -476,8 +504,11 @@ function Navigation() {
               );
             })}
 
-            {/* Separator + CTA */}
+            {/* Separator + Theme Toggle + CTA */}
             <div className="ml-2 h-5 w-px bg-white/10" />
+            <div className="ml-2">
+              <ThemeToggle />
+            </div>
             <button
               type="button"
               onClick={() => handleAnchor("contact")}
@@ -569,12 +600,9 @@ function Navigation() {
                   {navItems.map((item, index) => {
                     const isGallery = item.section === "captured";
                     const isProjects = item.section === "projects";
-                    const isServices = item.path === "/services";
                     const active =
-                      (item.path && location.pathname === item.path) ||
                       (isGallery && location.pathname === "/gallery") ||
                       (isProjects && location.pathname === "/projects") ||
-                      (isServices && location.pathname === "/services") ||
                       (location.pathname === "/" &&
                         activeSection === item.section);
 
@@ -590,12 +618,7 @@ function Navigation() {
                           ease: [0.65, 0, 0.35, 1],
                         }}
                         onClick={() => {
-                          if (item.path) {
-                            setIsMobileMenuOpen(false);
-                            navigate(item.path);
-                          } else {
-                            handleAnchor(item.section);
-                          }
+                          handleAnchor(item.section);
                         }}
                         className={`group flex items-center justify-between border-b border-white/[0.04] py-5 text-left transition-all duration-300 ${
                           active
@@ -613,6 +636,19 @@ function Navigation() {
                     );
                   })}
                 </div>
+
+                {/* Theme Toggle in Mobile */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.55, duration: 0.5 }}
+                  className="mt-6 flex items-center justify-center gap-3"
+                >
+                  <ThemeToggle />
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                    Toggle Theme
+                  </span>
+                </motion.div>
 
                 {/* Book Now CTA in mobile */}
                 <motion.button
@@ -786,9 +822,17 @@ function CustomCursor() {
 
 function App() {
   const location = useLocation();
-  const [introComplete, setIntroComplete] = useState(false);
+  // Intro plays only once per session — skip on refresh
+  const [introComplete, setIntroComplete] = useState(
+    () => sessionStorage.getItem("introPlayed") === "true",
+  );
 
   useLenis();
+
+  const handleIntroComplete = () => {
+    sessionStorage.setItem("introPlayed", "true");
+    setIntroComplete(true);
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
@@ -803,10 +847,7 @@ function App() {
           {introComplete && <Navigation />}
           <AnimatePresence mode="wait">
             {!introComplete && (
-              <IntroExperience
-                key="intro"
-                onComplete={() => setIntroComplete(true)}
-              />
+              <IntroExperience key="intro" onComplete={handleIntroComplete} />
             )}
           </AnimatePresence>
           <AnimatePresence mode="wait">

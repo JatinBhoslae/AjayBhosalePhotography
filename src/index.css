@@ -14,6 +14,11 @@
 
 html {
   background: #050505;
+  transition: background 0.5s ease;
+}
+
+html.light {
+  background: #f8f6f3;
 }
 
 body {
@@ -22,6 +27,14 @@ body {
   background: #050505;
   color: white;
   overflow-x: hidden;
+  transition:
+    background 0.5s ease,
+    color 0.5s ease;
+}
+
+html.light body {
+  background: #f8f6f3;
+  color: #1a1a1a;
 }
 
 * {
@@ -43,6 +56,288 @@ video {
 ::selection {
   background: rgba(240, 190, 116, 0.35);
   color: white;
+}
+
+html.light ::selection {
+  background: rgba(180, 130, 50, 0.25);
+  color: #1a1a1a;
+}
+
+/* ── Light Mode Overrides ── */
+html.light .noise-overlay {
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.04), transparent 62%);
+}
+
+html.light .ray {
+  opacity: 0.06;
+}
+
+/* Light mode text color overrides */
+html.light .text-white {
+  color: #1a1a1a;
+}
+
+html.light .text-white\/40 {
+  color: rgba(26, 26, 26, 0.45);
+}
+
+html.light .text-white\/50 {
+  color: rgba(26, 26, 26, 0.5);
+}
+
+html.light .text-white\/60 {
+  color: rgba(26, 26, 26, 0.6);
+}
+
+html.light .text-white\/65 {
+  color: rgba(26, 26, 26, 0.65);
+}
+
+html.light .text-white\/70 {
+  color: rgba(26, 26, 26, 0.7);
+}
+
+html.light .text-white\/80 {
+  color: rgba(26, 26, 26, 0.8);
+}
+
+html.light .text-white\/90 {
+  color: rgba(26, 26, 26, 0.9);
+}
+
+html.light .text-white\/30 {
+  color: rgba(26, 26, 26, 0.35);
+}
+
+html.light .text-white\/25 {
+  color: rgba(26, 26, 26, 0.3);
+}
+
+html.light .text-white\/20 {
+  color: rgba(26, 26, 26, 0.25);
+}
+
+html.light .text-white\/5 {
+  color: rgba(26, 26, 26, 0.06);
+}
+
+/* Light mode background overrides */
+html.light .bg-\[\#050505\] {
+  background: #f8f6f3;
+}
+
+html.light .bg-black {
+  background: #f8f6f3;
+}
+
+html.light .bg-black\/40 {
+  background: rgba(248, 246, 243, 0.9);
+}
+
+html.light .bg-black\/80 {
+  background: rgba(248, 246, 243, 0.95);
+}
+
+html.light .bg-white\/5 {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+html.light .bg-white\/10 {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+html.light .bg-white\/\[0\.02\] {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+html.light .bg-white\/\[0\.03\] {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+html.light .bg-white\/\[0\.04\] {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+html.light .bg-white\/\[0\.05\] {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Light mode border overrides */
+html.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+html.light .border-white\/\[0\.06\] {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+html.light .border-white\/\[0\.08\] {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+html.light .border-white\/\[0\.04\] {
+  border-color: rgba(0, 0, 0, 0.04);
+}
+
+html.light .border-white\/15 {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Light mode backdrop overrides */
+html.light .backdrop-blur-xl,
+html.light .backdrop-blur-2xl,
+html.light .backdrop-blur-3xl,
+html.light .backdrop-blur-md {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Light mode custom cursor - disable */
+html.light .custom-cursor {
+  display: none;
+}
+
+html.light body,
+html.light body a,
+html.light body button,
+html.light body input,
+html.light body textarea,
+html.light body [role="button"] {
+  cursor: auto;
+}
+
+/* Light mode cinematic input */
+html.light .cinematic-input {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.03);
+  color: #1a1a1a;
+}
+
+html.light .cinematic-input::placeholder {
+  color: rgba(26, 26, 26, 0.4);
+}
+
+html.light .cinematic-input:focus {
+  border-color: rgba(180, 130, 50, 0.5);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Light mode story prose */
+html.light .story-prose p {
+  color: rgba(26, 26, 26, 0.7);
+}
+
+/* Amber accent adjustments for light mode */
+html.light .text-amber-200 {
+  color: #92610a;
+}
+
+html.light .text-amber-200\/60 {
+  color: rgba(146, 97, 10, 0.6);
+}
+
+html.light .text-amber-200\/70 {
+  color: rgba(146, 97, 10, 0.7);
+}
+
+html.light .text-amber-200\/80 {
+  color: rgba(146, 97, 10, 0.8);
+}
+
+html.light .border-amber-200\/20 {
+  border-color: rgba(146, 97, 10, 0.2);
+}
+
+html.light .border-amber-200\/30 {
+  border-color: rgba(146, 97, 10, 0.3);
+}
+
+html.light .border-amber-200\/50 {
+  border-color: rgba(146, 97, 10, 0.4);
+}
+
+html.light .bg-amber-200\/\[0\.06\] {
+  background: rgba(146, 97, 10, 0.06);
+}
+
+html.light .bg-amber-200\/\[0\.08\] {
+  background: rgba(146, 97, 10, 0.08);
+}
+
+html.light .bg-amber-200\/\[0\.10\] {
+  background: rgba(146, 97, 10, 0.1);
+}
+
+html.light .bg-amber-200\/\[0\.12\] {
+  background: rgba(146, 97, 10, 0.12);
+}
+
+/* Shadow adjustments for light mode */
+html.light .shadow-\[0_10px_30px_rgba\(0\,0\,0\,0\.3\)\] {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+html.light .shadow-\[0_8px_32px_rgba\(0\,0\,0\,0\.4\)\] {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Hero section gradient override for light mode */
+html.light .bg-gradient-to-b.from-black\/70 {
+  --tw-gradient-from: rgba(248, 246, 243, 0.85);
+}
+
+html.light .bg-gradient-to-b.from-black\/70.via-black\/40 {
+  --tw-gradient-via: rgba(248, 246, 243, 0.5);
+}
+
+html.light .bg-gradient-to-b.from-black\/70.via-black\/40.to-\[\#0a0a0a\] {
+  --tw-gradient-to: #f8f6f3;
+}
+
+/* Light mode additional bg overrides */
+html.light .bg-black\/60 {
+  background: rgba(248, 246, 243, 0.85);
+}
+
+html.light .bg-black\/20 {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+html.light .bg-white {
+  background: #ffffff;
+}
+
+html.light .text-black {
+  color: #1a1a1a;
+}
+
+/* Light mode radial gradient override */
+html.light .bg-\[radial-gradient\(circle_at_center\,_transparent_0\%,
+_\#000_100\%\)\] {
+  background: radial-gradient(
+    circle at center,
+    transparent 0%,
+    rgba(248, 246, 243, 0.3) 100%
+  );
+}
+
+/* Light mode white/5 bg for spotlight */
+html.light .bg-white\/5.rounded-full {
+  background: rgba(146, 97, 10, 0.04);
+}
+
+/* Footer overrides for light */
+html.light footer.bg-black\/40 {
+  background: rgba(248, 246, 243, 0.8);
 }
 
 #root {
