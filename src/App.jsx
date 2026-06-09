@@ -188,7 +188,6 @@ function Navigation() {
     { label: "About", section: "about" },
     { label: "Gallery", section: "captured", path: "/gallery" },
     { label: "Projects", section: "projects" },
-    { label: "Stories", section: "gallery-trigger" },
     { label: "Contact", section: "contact" },
   ];
 
