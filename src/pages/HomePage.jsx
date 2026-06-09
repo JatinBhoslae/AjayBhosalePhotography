@@ -171,21 +171,13 @@ function AboutSection() {
                 narrative that lives forever. My approach combines technical
                 precision with a deep appreciation for authentic emotion.
               </p>
-              <div className="mt-10 grid grid-cols-2 gap-6 border-t border-white/10 pt-10 sm:gap-8">
+              <div className="mt-10 border-t border-white/10 pt-10">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-white/40 sm:text-xs">
                     Experience
                   </p>
                   <p className="mt-2 text-xl font-medium text-white sm:text-2xl">
-                    10+ Years
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/40 sm:text-xs">
-                    Location
-                  </p>
-                  <p className="mt-2 text-xl font-medium text-white sm:text-2xl">
-                    Worldwide
+                    5+ Years
                   </p>
                 </div>
               </div>

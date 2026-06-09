@@ -111,6 +111,18 @@ function IntroExperience({ onComplete }) {
         transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
       />
       <div className="absolute bottom-8 left-0 right-0 z-10 text-center sm:bottom-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: isEnding ? 0 : 1, scale: 1 }}
+          transition={{ duration: 0.9, delay: 0.15 }}
+          className="mb-4 flex justify-center"
+        >
+          <img
+            src="/logo.jpg"
+            alt="Logo"
+            className="h-16 w-16 rounded-full border border-white/20 object-cover shadow-2xl sm:h-20 sm:w-20"
+          />
+        </motion.div>
         <motion.p
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: isEnding ? 0 : 1, y: 0 }}
@@ -201,9 +213,16 @@ function Navigation() {
         <button
           type="button"
           onClick={() => handleAnchor("home")}
-          className="font-display text-2xl tracking-tighter text-white transition hover:opacity-70"
+          className="flex items-center gap-3 transition hover:opacity-70"
         >
-          {photographer.name}
+          <img
+            src="/logo.jpg"
+            alt={photographer.name}
+            className="h-8 w-8 rounded-full object-cover"
+          />
+          <span className="font-display text-xl tracking-tighter text-white">
+            {photographer.name}
+          </span>
         </button>
 
         {/* Desktop Nav */}
@@ -285,10 +304,24 @@ function Navigation() {
               </div>
 
               <div className="absolute bottom-12 left-12 right-12">
+                <div className="mb-8 flex justify-center">
+                  <img
+                    src="/logo.jpg"
+                    alt="Logo"
+                    className="h-12 w-12 rounded-full border border-white/10 object-cover"
+                  />
+                </div>
                 <div className="h-px w-full bg-white/10" />
                 <div className="mt-8 flex gap-6">
                   {/* Social links could go here */}
-                  <a href={photographer.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors">Instagram</a>
+                  <a
+                    href={photographer.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/40 hover:text-white transition-colors"
+                  >
+                    Instagram
+                  </a>
                 </div>
               </div>
             </motion.div>
