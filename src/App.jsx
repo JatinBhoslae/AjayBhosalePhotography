@@ -1,7 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import { IoArrowUp, IoMenuOutline, IoCloseOutline } from "react-icons/io5";
+import {
+  IoArrowUp,
+  IoMenuOutline,
+  IoCloseOutline,
+  IoVolumeHighOutline,
+  IoVolumeMuteOutline,
+} from "react-icons/io5";
 import {
   Link,
   Route,
@@ -16,6 +22,50 @@ import GalleryPage from "./pages/GalleryPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import ProjectsPage from "./pages/ProjectsPage.jsx";
 import StoryPage from "./pages/StoryPage.jsx";
+
+function BackgroundMusic({ isVisible }) {
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (isVisible && audioRef.current) {
+      audioRef.current.play().catch((err) => {
+        console.log("Autoplay blocked or audio error:", err);
+      });
+    }
+  }, [isVisible]);
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !audioRef.current.muted;
+      setIsMuted(audioRef.current.muted);
+    }
+  };
+
+  return (
+    <>
+      <audio ref={audioRef} src="/backgroundmusic.mp3" loop preload="auto" />
+      <AnimatePresence>
+        {isVisible && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, x: 20 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.8, x: 20 }}
+            onClick={toggleMute}
+            className="fixed bottom-24 right-8 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all hover:border-amber-200/50 hover:bg-white/20 hover:text-amber-200 active:scale-95 sm:bottom-28 sm:right-10 sm:h-14 sm:w-14"
+            aria-label={isMuted ? "Unmute music" : "Mute music"}
+          >
+            {isMuted ? (
+              <IoVolumeMuteOutline size={24} />
+            ) : (
+              <IoVolumeHighOutline size={24} />
+            )}
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
 function CinematicBackground() {
   const particles = useMemo(
@@ -452,6 +502,7 @@ function App() {
       <ScrollToTop />
       <CinematicBackground />
       <ScrollToTopButton />
+      <BackgroundMusic isVisible={introComplete} />
       <div className="relative z-10">
         {introComplete && <Navigation />}
         <AnimatePresence mode="wait">
