@@ -1,4 +1,9 @@
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useScroll,
+  useMotionValueEvent,
+} from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import {
@@ -69,6 +74,28 @@ import ProjectsPage from "./pages/ProjectsPage.jsx";
 import StoryPage from "./pages/StoryPage.jsx";
 import ServicesPage from "./pages/ServicesPage.jsx";
 
+function NotFoundPage() {
+  return (
+    <div className="flex min-h-[80vh] flex-col items-center justify-center px-6 text-center">
+      <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.4em] text-amber-200/60">
+        404 — Page Not Found
+      </p>
+      <h1 className="font-display text-5xl text-white sm:text-7xl">
+        Lost in the frame.
+      </h1>
+      <p className="mt-4 max-w-md text-sm text-white/40">
+        The page you’re looking for doesn’t exist or has been moved.
+      </p>
+      <Link
+        to="/"
+        className="mt-10 rounded-full border border-white/15 bg-white/[0.05] px-8 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70 transition hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200"
+      >
+        Back to Home
+      </Link>
+    </div>
+  );
+}
+
 function BackgroundMusic({ isVisible }) {
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef(null);
@@ -91,7 +118,12 @@ function BackgroundMusic({ isVisible }) {
 
   return (
     <>
-      <audio ref={audioRef} src="/backgroundmusic.mp3" loop preload="auto" />
+      <audio
+        ref={audioRef}
+        src="/backgroundmusic.mp3"
+        loop
+        preload="metadata"
+      />
       <AnimatePresence>
         {isVisible && (
           <motion.button
@@ -99,7 +131,7 @@ function BackgroundMusic({ isVisible }) {
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.8, x: 20 }}
             onClick={toggleMute}
-            className="fixed bottom-24 right-8 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all hover:border-amber-200/50 hover:bg-white/20 hover:text-amber-200 active:scale-95 sm:bottom-28 sm:right-10 sm:h-14 sm:w-14"
+            className="fixed bottom-20 right-5 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all hover:border-amber-200/50 hover:bg-white/20 hover:text-amber-200 active:scale-95 sm:bottom-28 sm:right-10 sm:h-14 sm:w-14"
             aria-label={isMuted ? "Unmute music" : "Mute music"}
           >
             {isMuted ? (
@@ -127,13 +159,32 @@ function WhatsAppButton({ isVisible }) {
           initial={{ opacity: 0, scale: 0.8, x: 20 }}
           animate={{ opacity: 1, scale: 1, x: 0 }}
           exit={{ opacity: 0, scale: 0.8, x: 20 }}
-          className="fixed bottom-40 right-8 z-[100] flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_30px_rgba(37,211,102,0.3)] transition-all hover:scale-110 hover:shadow-[0_10px_40px_rgba(37,211,102,0.4)] active:scale-95 sm:bottom-44 sm:right-10 sm:h-14 sm:w-14"
+          className="fixed bottom-34 right-5 z-[100] flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_30px_rgba(37,211,102,0.3)] transition-all hover:scale-110 hover:shadow-[0_10px_40px_rgba(37,211,102,0.4)] active:scale-95 sm:bottom-44 sm:right-10 sm:h-14 sm:w-14"
           aria-label="Chat on WhatsApp"
         >
           <IoLogoWhatsapp size={26} />
         </motion.a>
       )}
     </AnimatePresence>
+  );
+}
+
+function ScrollProgressBar() {
+  const { scrollYProgress } = useScroll();
+  const [scaleX, setScaleX] = useState(0);
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    setScaleX(latest);
+  });
+
+  return (
+    <div
+      className="scroll-progress-bar"
+      style={{
+        width: "100%",
+        transform: `scaleX(${scaleX})`,
+      }}
+    />
   );
 }
 
@@ -764,7 +815,7 @@ function ScrollToTopButton() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all hover:border-amber-200/50 hover:bg-white/20 hover:text-amber-200 active:scale-95 sm:bottom-10 sm:right-10 sm:h-14 sm:w-14"
+          className="fixed bottom-6 right-5 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all hover:border-amber-200/50 hover:bg-white/20 hover:text-amber-200 active:scale-95 sm:bottom-10 sm:right-10 sm:h-14 sm:w-14"
           aria-label="Scroll to top"
         >
           <IoArrowUp size={24} />
@@ -838,6 +889,7 @@ function App() {
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <AppErrorBoundary>
         <CustomCursor />
+        <ScrollProgressBar />
         <ScrollToTop />
         <CinematicBackground />
         <ScrollToTopButton />
@@ -914,6 +966,7 @@ function App() {
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/story/:slug" element={<StoryPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </motion.div>
             )}

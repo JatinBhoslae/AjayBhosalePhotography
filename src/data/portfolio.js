@@ -304,6 +304,7 @@ export const categories = [
   { name: "Nature", image: photos[2].image },
   { name: "Travel", image: photos[4].image },
   { name: "Wildlife", image: photos[5].image },
+  { name: "Documentary", image: photos[8].image },
   { name: "Events", image: photos[9].image },
   { name: "Fashion", image: photos[10].image },
 ];
@@ -335,6 +336,39 @@ export const projects = [
     story:
       "A slow travel narrative following light, weather, and the quiet rituals of remote landscapes.",
     images: [photos[2].image, photos[5].image, photos[8].image],
+  },
+];
+
+export const faqs = [
+  {
+    question: "How far in advance should I book?",
+    answer:
+      "For weddings and large events, I recommend booking 3–6 months in advance to secure your date. For portrait sessions and smaller shoots, 2–4 weeks is usually sufficient.",
+  },
+  {
+    question: "What is the typical delivery timeline?",
+    answer:
+      "Portrait and session galleries are delivered within 7–10 business days. Wedding and event galleries take 3–4 weeks. Cinematic films are delivered within 4–6 weeks depending on complexity.",
+  },
+  {
+    question: "Do you travel for assignments?",
+    answer:
+      "Absolutely. I regularly travel across India for destination weddings, documentaries, and editorial projects. Travel and accommodation costs are discussed during booking.",
+  },
+  {
+    question: "What equipment do you use?",
+    answer:
+      "I shoot primarily with Sony Alpha mirrorless systems — A1, A7R V, and A7 IV bodies paired with GM lenses. For video, I use cinema-grade stabilisation and audio equipment for a polished final product.",
+  },
+  {
+    question: "Can I customise a package?",
+    answer:
+      "Every project is unique. The Silver, Gold, and Diamond packages are starting points — I’m happy to design a bespoke package tailored to your vision, timeline, and budget. Just reach out on WhatsApp.",
+  },
+  {
+    question: "How are the final photos delivered?",
+    answer:
+      "Digital galleries are delivered via a private online link. Premium packages include a USB drive and/or a handcrafted leather album. All images are professionally colour-graded and retouched.",
   },
 ];
 

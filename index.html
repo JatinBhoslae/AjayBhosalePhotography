@@ -15,8 +15,12 @@
     />
     <meta name="author" content="Ajay Bhosale" />
 
+    <!-- Canonical URL (update domain when deploying) -->
+    <link rel="canonical" href="https://ajaybhosalephotography.com/" />
+
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ajaybhosalephotography.com/" />
     <meta
       property="og:title"
       content="Ajay Bhosale | Photography & Cinematography"
@@ -25,7 +29,10 @@
       property="og:description"
       content="Professional photographer and cinematographer specializing in luxury documentaries and cinematic visual storytelling."
     />
-    <meta property="og:image" content="/logo.jpg" />
+    <meta
+      property="og:image"
+      content="https://ajaybhosalephotography.com/logo.jpg"
+    />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -37,7 +44,52 @@
       name="twitter:description"
       content="Professional photographer and cinematographer specializing in luxury documentaries and cinematic visual storytelling."
     />
-    <meta name="twitter:image" content="/logo.jpg" />
+    <meta
+      name="twitter:image"
+      content="https://ajaybhosalephotography.com/logo.jpg"
+    />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Ajay Bhosale Photography & Cinematography",
+        "image": "https://ajaybhosalephotography.com/logo.jpg",
+        "url": "https://ajaybhosalephotography.com",
+        "telephone": "+91 8180857920",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Satara",
+          "addressRegion": "Maharashtra",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 17.6828,
+          "longitude": 73.9912
+        },
+        "priceRange": "₹15,000 – ₹75,000+",
+        "description": "Professional photographer and cinematographer specializing in luxury documentaries, portraits, weddings, and cinematic visual storytelling.",
+        "sameAs": [
+          "https://www.instagram.com/chitrography_films/",
+          "https://youtube.com/@ajaybhosalecinematography96"
+        ],
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+          ],
+          "opens": "09:00",
+          "closes": "20:00"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

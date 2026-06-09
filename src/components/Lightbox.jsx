@@ -85,6 +85,11 @@ export default function Lightbox({ items, index, onClose, onChange }) {
           <IoClose size={22} />
         </button>
 
+        {/* Photo Counter */}
+        <div className="absolute top-7 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-1.5 text-[11px] font-medium tracking-widest text-white/50 backdrop-blur-md sm:top-8">
+          {index + 1} / {items.length}
+        </div>
+
         <button
           type="button"
           className="absolute left-4 rounded-full border border-white/15 bg-white/10 p-3 text-white transition hover:bg-white/15 sm:left-8"

@@ -1,6 +1,6 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion, useScroll } from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -18,12 +18,14 @@ import {
   IoDiamondOutline,
   IoCheckmarkCircle,
   IoLogoWhatsapp,
+  IoChevronDownOutline,
 } from "react-icons/io5";
 import { HeroCameraCanvas } from "../components/CameraScene.jsx";
 import Reveal from "../components/Reveal.jsx";
 import { useInstagramFeed } from "../hooks/useInstagramFeed.js";
 import {
   categories,
+  faqs,
   photographer,
   photos,
   projects,
@@ -72,7 +74,8 @@ function HeroSection() {
         <img
           src="/home image 1.jpg"
           alt="Background"
-          className="h-full w-full object-cover"
+          className="blur-placeholder h-full w-full object-cover"
+          onLoad={(e) => e.target.classList.add("loaded")}
         />
         {/* Gradient Overlay for Text Readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0a0a0a]" />
@@ -137,6 +140,14 @@ function HeroSection() {
             </motion.button>
           </div>
         </Reveal>
+      </div>
+
+      {/* Scroll-down indicator */}
+      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2">
+        <IoChevronDownOutline
+          size={28}
+          className="animate-bounce-chevron text-white/40"
+        />
       </div>
     </section>
   );
@@ -246,7 +257,8 @@ function AboutSection() {
                   src={photographer.portrait}
                   alt={photographer.name}
                   loading="lazy"
-                  className="h-full w-full object-cover"
+                  className="blur-placeholder h-full w-full object-cover"
+                  onLoad={(e) => e.target.classList.add("loaded")}
                 />
               </div>
               <div className="absolute -bottom-4 -left-4 rounded-2xl border border-white/20 bg-black/80 p-5 backdrop-blur-xl sm:-bottom-6 sm:-left-6 sm:rounded-3xl sm:p-8">
@@ -304,12 +316,8 @@ function CapturedMomentsSection() {
                 src={photo.image}
                 alt={photo.title || "Photography"}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-110"
-                onLoad={(e) => {
-                  e.target.classList.remove("opacity-0");
-                  e.target.classList.add("opacity-100");
-                }}
-                style={{ opacity: 0, transition: "opacity 0.6s ease" }}
+                className="blur-placeholder h-full w-full object-cover transition-transform duration-700 hover:scale-110"
+                onLoad={(e) => e.target.classList.add("loaded")}
               />
             </Reveal>
           ))}
@@ -337,12 +345,8 @@ function CategoriesSection() {
                 src={category.image}
                 alt={category.name}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                onLoad={(e) => {
-                  e.target.classList.remove("opacity-0");
-                  e.target.classList.add("opacity-100");
-                }}
-                style={{ opacity: 0, transition: "opacity 0.6s ease" }}
+                className="blur-placeholder h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                onLoad={(e) => e.target.classList.add("loaded")}
               />
               <div className="absolute inset-0 bg-black/40 transition-colors duration-500 group-hover:bg-black/20" />
               <div className="absolute inset-0 flex items-center justify-center p-4">
@@ -413,7 +417,8 @@ function FeaturedProjectsSection() {
                       src={project.images[0]}
                       alt={project.name}
                       loading="lazy"
-                      className="aspect-[16/9] w-full object-cover"
+                      className="blur-placeholder aspect-[16/9] w-full object-cover"
+                      onLoad={(e) => e.target.classList.add("loaded")}
                     />
                   </Reveal>
                   <Reveal
@@ -424,7 +429,8 @@ function FeaturedProjectsSection() {
                       src={project.images[1]}
                       alt={project.name}
                       loading="lazy"
-                      className="aspect-square w-full object-cover"
+                      className="blur-placeholder aspect-square w-full object-cover"
+                      onLoad={(e) => e.target.classList.add("loaded")}
                     />
                   </Reveal>
                   <Reveal
@@ -435,7 +441,8 @@ function FeaturedProjectsSection() {
                       src={project.images[2]}
                       alt={project.name}
                       loading="lazy"
-                      className="aspect-square w-full object-cover"
+                      className="blur-placeholder aspect-square w-full object-cover"
+                      onLoad={(e) => e.target.classList.add("loaded")}
                     />
                   </Reveal>
                 </div>
@@ -633,13 +640,24 @@ function ServicesPreviewSection() {
 }
 
 function TestimonialsSection() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    if (window.innerWidth >= 768) return;
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <SectionShell
       id="testimonials"
       eyebrow="Testimonials"
       title="Voices of those who lived the journey."
     >
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Desktop grid */}
+      <div className="hidden gap-6 md:grid md:grid-cols-3">
         {testimonials.map((t, index) => (
           <Reveal
             key={t.name}
@@ -675,6 +693,63 @@ function TestimonialsSection() {
             </div>
           </Reveal>
         ))}
+      </div>
+
+      {/* Mobile carousel */}
+      <div className="md:hidden">
+        <div
+          className="testimonials-carousel overflow-hidden rounded-[2.5rem]"
+          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+        >
+          {testimonials.map((t) => (
+            <div
+              key={t.name}
+              className="group relative border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
+            >
+              <div className="absolute right-10 top-10 text-6xl text-white/5">
+                "
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="h-14 w-14 overflow-hidden rounded-full border border-white/20">
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-display text-xl text-white">{t.name}</h4>
+                  <p className="text-xs uppercase tracking-widest text-white/40">
+                    {t.role}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-8 text-lg italic leading-relaxed text-white/70">
+                "{t.review}"
+              </p>
+              <div className="mt-6 flex gap-1 text-amber-200/60">
+                {Array.from({ length: t.rating }).map((_, i) => (
+                  <IoStar key={i} size={14} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Dots */}
+        <div className="mt-6 flex justify-center gap-2">
+          {testimonials.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setActiveSlide(i)}
+              className={`h-2 rounded-full transition-all ${
+                i === activeSlide ? "w-6 bg-amber-200" : "w-2 bg-white/20"
+              }`}
+              aria-label={`Go to testimonial ${i + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </SectionShell>
   );
@@ -748,12 +823,8 @@ function InstagramFeedSection() {
                     src={post.imageUrl}
                     alt={post.caption || "Instagram post"}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onLoad={(e) => {
-                      e.target.classList.remove("opacity-0");
-                      e.target.classList.add("opacity-100");
-                    }}
-                    style={{ opacity: 0, transition: "opacity 0.6s ease" }}
+                    className="blur-placeholder h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onLoad={(e) => e.target.classList.add("loaded")}
                   />
 
                   {/* Video / Carousel indicator */}
@@ -870,12 +941,8 @@ function InstagramFeedSection() {
                     src={photo.image}
                     alt={photo.title}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onLoad={(e) => {
-                      e.target.classList.remove("opacity-0");
-                      e.target.classList.add("opacity-100");
-                    }}
-                    style={{ opacity: 0, transition: "opacity 0.6s ease" }}
+                    className="blur-placeholder h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onLoad={(e) => e.target.classList.add("loaded")}
                   />
                   {/* Hover overlay with Instagram icon */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-500 group-hover:bg-black/40">
@@ -918,6 +985,69 @@ function InstagramFeedSection() {
             </a>
           </div>
         </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  return (
+    <section id="faq" className="py-24 sm:py-32">
+      <div className="mx-auto max-w-3xl px-6 sm:px-8">
+        <Reveal>
+          <div className="mb-12 text-center">
+            <p className="mb-4 text-xs uppercase tracking-[0.45em] text-amber-200/70">
+              FAQ
+            </p>
+            <h2 className="font-display text-4xl leading-tight text-white sm:text-5xl">
+              Common questions.
+            </h2>
+          </div>
+        </Reveal>
+
+        <div className="space-y-3">
+          {faqs.map((faq, index) => (
+            <Reveal key={index} delay={index * 0.05}>
+              <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl transition-all hover:border-white/10">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenIndex(openIndex === index ? null : index)
+                  }
+                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                >
+                  <span className="text-sm font-medium text-white sm:text-base">
+                    {faq.question}
+                  </span>
+                  <motion.span
+                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="shrink-0 text-white/40"
+                  >
+                    <IoChevronDownOutline size={18} />
+                  </motion.span>
+                </button>
+                <AnimatePresence>
+                  {openIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <p className="px-6 pb-5 text-sm leading-relaxed text-white/50">
+                        {faq.answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -1297,6 +1427,7 @@ export default function HomePage() {
         <ServicesPreviewSection />
         <TestimonialsSection />
         <InstagramFeedSection />
+        <FAQSection />
         <ContactSection />
         <Footer />
       </main>
