@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { IoArrowUp } from "react-icons/io5";
+import { IoArrowUp, IoMenuOutline, IoCloseOutline } from "react-icons/io5";
 import {
   Link,
   Route,
@@ -136,6 +136,7 @@ function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("home");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (location.pathname !== "/") {
@@ -155,7 +156,6 @@ function Navigation() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // Find the entry that is most visible in the viewport
         const visibleEntry = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
@@ -166,7 +166,7 @@ function Navigation() {
       },
       {
         threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-        rootMargin: "-20% 0px -20% 0px", // Tighten detection area to center of screen
+        rootMargin: "-20% 0px -20% 0px",
       },
     );
 
@@ -175,6 +175,7 @@ function Navigation() {
   }, [location.pathname]);
 
   const handleAnchor = (section) => {
+    setIsMobileMenuOpen(false);
     if (location.pathname !== "/") {
       sessionStorage.setItem("scroll-target", section);
       navigate("/");
@@ -204,6 +205,8 @@ function Navigation() {
         >
           {photographer.name}
         </button>
+
+        {/* Desktop Nav */}
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => {
             const isGallery = item.section === "captured";
@@ -219,14 +222,6 @@ function Navigation() {
                 : "text-white/60 hover:bg-white/10 hover:text-white"
             }`;
 
-            if (item.path) {
-              return (
-                <Link key={item.label} to={item.path} className={classes}>
-                  {item.label}
-                </Link>
-              );
-            }
-
             return (
               <button
                 key={item.label}
@@ -239,7 +234,67 @@ function Navigation() {
             );
           })}
         </nav>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          type="button"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white md:hidden"
+        >
+          {isMobileMenuOpen ? (
+            <IoCloseOutline size={24} />
+          ) : (
+            <IoMenuOutline size={24} />
+          )}
+        </button>
       </div>
+
+      {/* Mobile Nav Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop for closing the menu */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 z-[101] bg-black/60 backdrop-blur-sm md:hidden"
+            />
+            <motion.div
+              initial={{ opacity: 0, x: "100%" }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 z-[102] w-full max-w-sm bg-[#0a0a0a]/95 p-12 shadow-2xl backdrop-blur-3xl md:hidden"
+            >
+              <div className="flex flex-col gap-8 pt-20">
+                {navItems.map((item, index) => (
+                  <motion.button
+                    key={item.label}
+                    type="button"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + index * 0.1 }}
+                    onClick={() => handleAnchor(item.section)}
+                    className="text-left text-3xl font-display uppercase tracking-[0.2em] text-white/70 transition-colors hover:text-white"
+                  >
+                    {item.label}
+                  </motion.button>
+                ))}
+              </div>
+
+              <div className="absolute bottom-12 left-12 right-12">
+                <div className="h-px w-full bg-white/10" />
+                <div className="mt-8 flex gap-6">
+                  {/* Social links could go here */}
+                  <a href={photographer.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors">Instagram</a>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
@@ -260,7 +315,11 @@ function ScrollToTop() {
 
     // Backup scroll with a tiny delay to ensure content has rendered and Lenis is reset
     const timeout = setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      if (window.lenis) {
+        window.lenis.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      }
       // If Lenis is active, this helps reset its internal state
       document.documentElement.style.scrollBehavior = "auto";
       window.scrollTo(0, 0);
