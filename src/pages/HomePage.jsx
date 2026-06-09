@@ -103,49 +103,77 @@ function HeroSection() {
       id="home"
       className="relative flex min-h-[90vh] flex-col items-center justify-center px-6 pt-32 text-center sm:min-h-screen sm:px-8"
     >
-      <Reveal>
-        <span className="mb-4 inline-block text-[10px] font-bold uppercase tracking-[0.5em] text-amber-200/60 sm:text-xs">
-          Photography & Cinematography
-        </span>
-      </Reveal>
-      <Reveal delay={0.1}>
-        <h1 className="max-w-5xl font-display text-5xl leading-[0.9] text-white sm:text-7xl md:text-8xl lg:text-9xl">
-          Capturing the <br />
-          <span className="text-white/40 italic">essence of life.</span>
-        </h1>
-      </Reveal>
-      <Reveal delay={0.2}>
-        <p className="mt-8 max-w-xl text-base leading-relaxed text-white/50 sm:mt-10 sm:text-lg">
-          Specializing in luxury documentaries and cinematic visual storytelling
-          for global audiences.
-        </p>
-      </Reveal>
-      <Reveal delay={0.3}>
-        <div className="mt-10 flex w-full flex-col items-center gap-4 sm:mt-12 sm:w-auto sm:flex-row sm:gap-6">
-          <button
-            type="button"
-            onClick={() =>
-              document
-                .getElementById("captured")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="w-full rounded-full bg-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-black transition hover:bg-amber-100 sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
-          >
-            Explore Gallery
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              document
-                .getElementById("contact")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="w-full rounded-full border border-white/20 bg-white/5 px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white backdrop-blur-sm transition hover:bg-white/10 sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
-          >
-            Work with me
-          </button>
-        </div>
-      </Reveal>
+      {/* Background Image with Cinematic Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/home image 1.jpg"
+          alt="Background"
+          className="h-full w-full object-cover"
+        />
+        {/* Gradient Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0a0a0a]" />
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center">
+        <Reveal>
+          <span className="mb-4 inline-block text-[10px] font-bold uppercase tracking-[0.5em] text-amber-200/60 sm:text-xs">
+            Photography & Cinematography
+          </span>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <h1 className="mx-auto max-w-5xl font-display text-5xl leading-[0.9] text-white sm:text-7xl md:text-8xl lg:text-9xl">
+            Capturing the <br />
+            <span className="text-white/40 italic">essence of life.</span>
+          </h1>
+        </Reveal>
+        <Reveal delay={0.2}>
+          <p className="mx-auto mt-8 max-w-xl text-base leading-relaxed text-white/80 sm:mt-10 sm:text-lg">
+            Specializing in luxury documentaries and cinematic visual
+            storytelling for global audiences.
+          </p>
+        </Reveal>
+        <Reveal delay={0.3}>
+          <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:mt-12 sm:w-auto sm:flex-row sm:gap-6">
+            <motion.button
+              whileHover={{
+                scale: 1.05,
+                backgroundColor: "#fffbeb", // amber-50
+                boxShadow: "0 0 25px rgba(255, 255, 255, 0.3)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={() =>
+                document
+                  .getElementById("captured")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="group relative w-full overflow-hidden rounded-full bg-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-black transition-all sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
+            >
+              <span className="relative z-10">Explore Gallery</span>
+              <motion.div className="absolute inset-0 z-0 bg-gradient-to-r from-amber-100 to-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </motion.button>
+
+            <motion.button
+              whileHover={{
+                scale: 1.05,
+                borderColor: "rgba(255, 255, 255, 0.6)",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={() =>
+                document
+                  .getElementById("contact")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="group relative w-full overflow-hidden rounded-full border border-white/20 bg-white/5 px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white backdrop-blur-sm transition-all sm:w-auto sm:px-8 sm:py-4 sm:text-xs"
+            >
+              <span className="relative z-10">Work with me</span>
+              <motion.div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+            </motion.button>
+          </div>
+        </Reveal>
+      </div>
     </section>
   );
 }
