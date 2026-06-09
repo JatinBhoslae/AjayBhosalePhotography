@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import ReactPlayer from "react-player";
 import { IoArrowUp, IoMenuOutline, IoCloseOutline } from "react-icons/io5";
 import {
   Link,
@@ -58,6 +59,16 @@ function IntroExperience({ onComplete }) {
   const [isEnding, setIsEnding] = useState(false);
 
   useEffect(() => {
+    // Safety timeout: if video doesn't end or onEnded doesn't fire,
+    // automatically end intro after 15 seconds (typical reel length)
+    const safetyTimeout = window.setTimeout(() => {
+      setIsEnding(true);
+    }, 15000);
+
+    return () => window.clearTimeout(safetyTimeout);
+  }, []);
+
+  useEffect(() => {
     if (!isEnding) {
       return undefined;
     }
@@ -77,20 +88,44 @@ function IntroExperience({ onComplete }) {
       animate={{ opacity: isEnding ? 0 : 1 }}
       transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
     >
-      <motion.video
-        className="h-full w-full object-cover"
-        autoPlay
-        muted
-        playsInline
-        onEnded={() => setIsEnding(true)}
-        onError={() => setIsEnding(true)}
-        animate={{
-          scale: isEnding ? 1.05 : 1,
-          filter: isEnding ? "brightness(0.6)" : "brightness(0.9)",
-        }}
-        transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
-        src={photographer.introVideo}
-      />
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <motion.div
+          className="relative h-full w-full"
+          initial={{ scale: 1.2 }}
+          animate={{
+            scale: isEnding ? 1.3 : 1.1,
+            filter: isEnding
+              ? "brightness(0.6) blur(10px)"
+              : "brightness(0.8) blur(0px)",
+          }}
+          transition={{ duration: 2.5, ease: "easeOut" }}
+        >
+          <ReactPlayer
+            url={photographer.introVideo}
+            playing={!isEnding}
+            muted
+            playsinline
+            width="100%"
+            height="100%"
+            onEnded={() => setIsEnding(true)}
+            onError={() => setIsEnding(true)}
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              objectFit: "cover",
+            }}
+            config={{
+              instagram: {
+                playerVars: {
+                  hide_caption: 1,
+                },
+              },
+            }}
+          />
+        </motion.div>
+      </div>
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.2),rgba(0,0,0,0.72))]" />
 
       <motion.button

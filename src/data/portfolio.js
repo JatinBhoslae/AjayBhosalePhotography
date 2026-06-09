@@ -12,18 +12,15 @@ export const photographer = {
   instagram: "chitrography_films",
   youtube: "ajaybhosalecinematography96",
   instagramUrl: "https://www.instagram.com/chitrography_films/",
-  youtubeUrl: "https://youtube.com/@ajaybhosalecinematography96?si=AubKZwaYjfowSIov",
+  youtubeUrl:
+    "https://youtube.com/@ajaybhosalecinematography96?si=AubKZwaYjfowSIov",
   portrait: cloudinaryImage("samples/people/jazz", {
     width: 900,
     height: 1200,
     crop: "fill",
     gravity: "face",
   }),
-  introVideo: cloudinaryVideo("samples/sea-turtle", {
-    width: 1920,
-    height: 1080,
-    crop: "fill",
-  }),
+  introVideo: "https://www.instagram.com/reel/DVQQMXMCKBV/",
   stats: [
     { label: "Years Experience", value: "12+" },
     { label: "Global Projects", value: "85+" },
