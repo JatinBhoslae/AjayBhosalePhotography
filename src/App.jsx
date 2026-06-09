@@ -7,6 +7,7 @@ import {
   IoCloseOutline,
   IoVolumeHighOutline,
   IoVolumeMuteOutline,
+  IoLogoWhatsapp,
 } from "react-icons/io5";
 import {
   Link,
@@ -107,6 +108,29 @@ function BackgroundMusic({ isVisible }) {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+function WhatsAppButton({ isVisible }) {
+  const whatsappUrl = `https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Hi! I'm interested in booking a photography session.")}`;
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          initial={{ opacity: 0, scale: 0.8, x: 20 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0.8, x: 20 }}
+          className="fixed bottom-40 right-8 z-[100] flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_30px_rgba(37,211,102,0.3)] transition-all hover:scale-110 hover:shadow-[0_10px_40px_rgba(37,211,102,0.4)] active:scale-95 sm:bottom-44 sm:right-10 sm:h-14 sm:w-14"
+          aria-label="Chat on WhatsApp"
+        >
+          <IoLogoWhatsapp size={26} />
+        </motion.a>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -774,6 +798,7 @@ function App() {
         <CinematicBackground />
         <ScrollToTopButton />
         <BackgroundMusic isVisible={introComplete} />
+        <WhatsAppButton isVisible={introComplete} />
         <div className="relative z-10">
           {introComplete && <Navigation />}
           <AnimatePresence mode="wait">
@@ -786,13 +811,70 @@ function App() {
           </AnimatePresence>
           <AnimatePresence mode="wait">
             {introComplete && (
-              <Routes location={location} key={location.pathname}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/gallery" element={<GalleryPage />} />
-                <Route path="/projects" element={<ProjectsPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/story/:slug" element={<StoryPage />} />
-              </Routes>
+              <motion.div
+                key={location.pathname}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={{
+                  hidden: {
+                    opacity: 0,
+                    clipPath: "inset(0 0 0 0)",
+                    filter: "brightness(1.6) blur(6px)",
+                  },
+                  visible: {
+                    opacity: 1,
+                    clipPath: "inset(0 0 0 0)",
+                    filter: "brightness(1) blur(0px)",
+                    transition: {
+                      duration: 0.7,
+                      ease: [0.65, 0, 0.35, 1],
+                    },
+                  },
+                  exit: {
+                    opacity: 0,
+                    filter: "brightness(0.6) blur(4px)",
+                    transition: {
+                      duration: 0.35,
+                      ease: [0.65, 0, 0.35, 1],
+                    },
+                  },
+                }}
+              >
+                {/* Cinematic wipe overlay */}
+                <motion.div
+                  className="pointer-events-none fixed inset-0 z-[200]"
+                  initial={{ scaleX: 0, transformOrigin: "left" }}
+                  animate={{ scaleX: [0, 1, 0] }}
+                  transition={{
+                    duration: 0.8,
+                    times: [0, 0.45, 1],
+                    ease: [0.65, 0, 0.35, 1],
+                  }}
+                >
+                  <div className="h-full w-full bg-gradient-to-r from-black via-amber-950/30 to-black" />
+                </motion.div>
+
+                {/* Film grain flash */}
+                <motion.div
+                  className="pointer-events-none fixed inset-0 z-[199]"
+                  initial={{ opacity: 0.35 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  style={{
+                    background:
+                      "radial-gradient(circle at center, rgba(255,210,145,0.08), transparent 70%)",
+                  }}
+                />
+
+                <Routes location={location}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/gallery" element={<GalleryPage />} />
+                  <Route path="/projects" element={<ProjectsPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/story/:slug" element={<StoryPage />} />
+                </Routes>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

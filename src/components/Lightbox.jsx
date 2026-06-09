@@ -1,6 +1,24 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef } from "react";
-import { IoArrowBack, IoArrowForward, IoClose } from "react-icons/io5";
+import {
+  IoArrowBack,
+  IoArrowForward,
+  IoClose,
+  IoCameraOutline,
+  IoApertureOutline,
+  IoSpeedometerOutline,
+  IoFlashOutline,
+} from "react-icons/io5";
+
+/** Parse "1/320 sec, f/2.8, ISO 800" into structured EXIF fields */
+function parseSettings(settings) {
+  if (!settings) return null;
+  const parts = settings.split(",").map((s) => s.trim());
+  const shutter = parts[0] || null;
+  const aperture = parts[1] || null;
+  const iso = parts[2] || null;
+  return { shutter, aperture, iso };
+}
 
 export default function Lightbox({ items, index, onClose, onChange }) {
   const touchStartX = useRef(null);
@@ -88,7 +106,7 @@ export default function Lightbox({ items, index, onClose, onChange }) {
             alt={item.title}
             className="max-h-[78vh] w-full rounded-[2rem] object-cover shadow-2xl"
           />
-          <figcaption className="mt-5 flex flex-col gap-2 text-white/80 sm:flex-row sm:items-end sm:justify-between">
+          <figcaption className="mt-5 flex flex-col gap-4 text-white/80 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.35em] text-amber-200/70">
                 {item.category}
@@ -99,6 +117,57 @@ export default function Lightbox({ items, index, onClose, onChange }) {
               {item.location} / {item.date}
             </p>
           </figcaption>
+
+          {/* EXIF / Camera Settings Bar */}
+          {(item.settings || item.equipment) &&
+            (() => {
+              const exif = parseSettings(item.settings);
+              return (
+                <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4">
+                  {exif?.shutter && (
+                    <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2 backdrop-blur-md">
+                      <IoSpeedometerOutline
+                        size={14}
+                        className="text-amber-200/60"
+                      />
+                      <span className="text-[11px] font-medium tracking-wide text-white/60">
+                        {exif.shutter}
+                      </span>
+                    </div>
+                  )}
+                  {exif?.aperture && (
+                    <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2 backdrop-blur-md">
+                      <IoApertureOutline
+                        size={14}
+                        className="text-amber-200/60"
+                      />
+                      <span className="text-[11px] font-medium tracking-wide text-white/60">
+                        {exif.aperture}
+                      </span>
+                    </div>
+                  )}
+                  {exif?.iso && (
+                    <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2 backdrop-blur-md">
+                      <IoFlashOutline size={14} className="text-amber-200/60" />
+                      <span className="text-[11px] font-medium tracking-wide text-white/60">
+                        {exif.iso}
+                      </span>
+                    </div>
+                  )}
+                  {item.equipment && (
+                    <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2 backdrop-blur-md">
+                      <IoCameraOutline
+                        size={14}
+                        className="text-amber-200/60"
+                      />
+                      <span className="text-[11px] font-medium tracking-wide text-white/60">
+                        {item.equipment}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
         </motion.figure>
 
         <button

@@ -1,7 +1,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, useScroll } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   IoArrowForward,
@@ -17,6 +17,7 @@ import {
   IoStarOutline,
   IoDiamondOutline,
   IoCheckmarkCircle,
+  IoLogoWhatsapp,
 } from "react-icons/io5";
 import { HeroCameraCanvas } from "../components/CameraScene.jsx";
 import Reveal from "../components/Reveal.jsx";
@@ -133,6 +134,92 @@ function HeroSection() {
               <span className="relative z-10">Work with me</span>
               <motion.div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
             </motion.button>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function AnimatedCounter({ end, suffix = "", duration = 2 }) {
+  const [count, setCount] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasStarted) {
+          setHasStarted(true);
+        }
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasStarted]);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+    const numericEnd = parseInt(end, 10);
+    const steps = 60;
+    const stepTime = (duration * 1000) / steps;
+    let current = 0;
+    const increment = numericEnd / steps;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= numericEnd) {
+        setCount(numericEnd);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, stepTime);
+    return () => clearInterval(timer);
+  }, [hasStarted, end, duration]);
+
+  return (
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
+const statsDisplay = [
+  { value: 12, suffix: "+", label: "Years Experience" },
+  { value: 100, suffix: "+", label: "Orders Delivered" },
+  { value: 85, suffix: "+", label: "Global Projects" },
+  { value: 14, suffix: "", label: "Awards Won" },
+];
+
+function StatsSection() {
+  return (
+    <section className="relative py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8">
+        <Reveal>
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
+            {statsDisplay.map((stat, i) => (
+              <Reveal key={stat.label} delay={i * 0.1}>
+                <div className="group relative overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 text-center backdrop-blur-xl transition-all duration-500 hover:border-amber-200/20 hover:bg-white/[0.04] sm:p-8">
+                  <div className="absolute inset-0 bg-gradient-to-b from-amber-200/[0.04] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="relative">
+                    <p className="font-display text-4xl font-bold text-white sm:text-5xl md:text-6xl">
+                      <AnimatedCounter
+                        end={stat.value}
+                        suffix={stat.suffix}
+                        duration={2}
+                      />
+                    </p>
+                    <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/40 sm:text-xs">
+                      {stat.label}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </Reveal>
       </div>
@@ -675,6 +762,25 @@ function ContactSection() {
                     </div>
                   </div>
                 </div>
+
+                <a
+                  href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-5 transition-transform hover:translate-x-2"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#25D366]/10 text-[#25D366] transition-colors group-hover:bg-[#25D366] group-hover:text-black">
+                    <IoLogoWhatsapp size={24} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">
+                      WhatsApp Me
+                    </p>
+                    <p className="text-base text-white sm:text-lg">
+                      Quick reply guaranteed
+                    </p>
+                  </div>
+                </a>
               </div>
 
               <div className="h-px w-full bg-white/10" />
@@ -844,6 +950,14 @@ function Footer() {
                 <IoLogoYoutube size={16} /> YouTube
               </a>
               <a
+                href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-white/40 transition-colors hover:text-[#25D366]"
+              >
+                <IoLogoWhatsapp size={16} /> WhatsApp
+              </a>
+              <a
                 href={`mailto:${photographer.email}`}
                 className="flex items-center gap-2 text-sm text-white/40 transition-colors hover:text-amber-200/70"
               >
@@ -928,6 +1042,7 @@ export default function HomePage() {
       <main className="relative z-20">
         <HeroSection />
         <AboutSection />
+        <StatsSection />
         <CapturedMomentsSection />
         <FeaturedProjectsSection />
         <ServicesPreviewSection />
