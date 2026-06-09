@@ -614,7 +614,6 @@ export default function HomePage() {
         <AboutSection />
         <CapturedMomentsSection />
         <FeaturedProjectsSection />
-        <CategoriesSection />
         <TestimonialsSection />
         <ContactSection />
       </main>
