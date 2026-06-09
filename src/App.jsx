@@ -193,11 +193,11 @@ function Navigation() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-[101] px-4 py-6 sm:px-8">
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/40 px-6 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-3xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-black/5 bg-white px-6 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-3xl">
         <button
           type="button"
           onClick={() => handleAnchor("home")}
-          className="font-display text-2xl tracking-tighter text-white transition hover:opacity-70"
+          className="font-display text-2xl tracking-tighter text-black transition hover:opacity-70"
         >
           {photographer.name}
         </button>
@@ -208,8 +208,8 @@ function Navigation() {
               (location.pathname === "/" && activeSection === item.section);
             const classes = `rounded-full px-5 py-2 text-[11px] font-bold uppercase tracking-[0.3em] transition-all duration-300 ${
               active
-                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                : "text-white/50 hover:bg-white/5 hover:text-white"
+                ? "bg-black text-white shadow-[0_0_20px_rgba(0,0,0,0.1)]"
+                : "text-black/50 hover:bg-black/5 hover:text-black"
             }`;
 
             if (item.path) {
