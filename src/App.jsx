@@ -5,7 +5,6 @@ import {
   useMotionValueEvent,
 } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import ReactPlayer from "react-player";
 import {
   IoArrowUp,
   IoMenuOutline,
@@ -70,8 +69,6 @@ class AppErrorBoundary extends Component {
 }
 import GalleryPage from "./pages/GalleryPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
-import ProjectsPage from "./pages/ProjectsPage.jsx";
-import StoryPage from "./pages/StoryPage.jsx";
 import ServicesPage from "./pages/ServicesPage.jsx";
 
 function NotFoundPage() {
@@ -102,7 +99,7 @@ function BackgroundMusic({ isVisible }) {
 
   useEffect(() => {
     if (isVisible && audioRef.current) {
-      audioRef.current.volume = 0.1;
+      audioRef.current.volume = 0.25;
       audioRef.current.play().catch((err) => {
         console.log("Autoplay blocked or audio error:", err);
       });
@@ -122,6 +119,7 @@ function BackgroundMusic({ isVisible }) {
         ref={audioRef}
         src="/backgroundmusic.mp3"
         loop
+        muted={isMuted}
         preload="metadata"
       />
       <AnimatePresence>
@@ -228,20 +226,116 @@ function CinematicBackground() {
 
 function IntroExperience({ onComplete }) {
   const [isEnding, setIsEnding] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(false); // Start unmuted as requested
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoStarted, setVideoStarted] = useState(false);
+  const [userInteracted, setUserInteracted] = useState(false); // For autoplay compliance
+  const videoRef = useRef(null);
+  const safetyTimeoutRef = useRef(null);
 
   useEffect(() => {
-    // Safety timeout: if video doesn't end or onEnded doesn't fire,
-    // automatically end intro after 15 seconds (typical reel length)
-    const safetyTimeout = window.setTimeout(() => {
-      setIsEnding(true);
-    }, 15000);
+    const video = videoRef.current;
+    if (!video) return;
 
-    return () => window.clearTimeout(safetyTimeout);
-  }, []);
+    const playVideo = () => {
+      console.log("Starting intro video...");
+      video
+        .play()
+        .then(() => {
+          console.log("Intro video playing successfully");
+          setVideoStarted(true);
+          // Start safety timeout ONLY after video actually starts playing
+          safetyTimeoutRef.current = window.setTimeout(() => {
+            console.log("Safety timeout: ending intro");
+            setIsEnding(true);
+          }, 15000);
+        })
+        .catch((err) => {
+          console.log("Autoplay blocked/failed, skipping intro:", err);
+          setIsEnding(true);
+        });
+    };
+
+    const handleCanPlayThrough = () => {
+      console.log("Video can play through");
+      setVideoLoaded(true);
+      // Only play if user has already interacted
+      if (userInteracted && !videoStarted) {
+        playVideo();
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      // Log current time for debugging
+      console.log("Video currentTime:", video.currentTime);
+      // Transition to home page when video reaches 12 seconds or near the end
+      if (
+        video.duration &&
+        (video.currentTime >= 12 || video.currentTime >= video.duration - 1)
+      ) {
+        console.log("Video ending, transitioning to home page");
+        setIsEnding(true);
+      }
+    };
+
+    const handleError = (e) => {
+      console.log("Video error, skipping intro:", e);
+      setIsEnding(true);
+    };
+
+    const handleEnded = () => {
+      console.log("Video ended naturally");
+      setIsEnding(true);
+    };
+
+    const handlePause = () => {
+      console.log("Video paused unexpectedly");
+      // Try to resume playback if we haven't ended yet
+      if (!isEnding && videoStarted) {
+        console.log("Attempting to resume video playback");
+        video.play().catch((err) => console.log("Resume failed:", err));
+      }
+    };
+
+    video.addEventListener("canplaythrough", handleCanPlayThrough);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("error", handleError);
+    video.addEventListener("ended", handleEnded);
+    video.addEventListener("pause", handlePause);
+
+    // Try to play immediately if user has already interacted and video is loaded
+    if (userInteracted && video.readyState >= 4) {
+      console.log("Video already loaded, starting playback");
+      setVideoLoaded(true);
+      playVideo();
+    } else {
+      console.log("Waiting for user interaction...");
+    }
+
+    return () => {
+      video.removeEventListener("canplaythrough", handleCanPlayThrough);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("error", handleError);
+      video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("pause", handlePause);
+      if (safetyTimeoutRef.current) {
+        window.clearTimeout(safetyTimeoutRef.current);
+      }
+    };
+  }, [isEnding, videoStarted, userInteracted]);
+
+  const handleUserInteraction = () => {
+    console.log("User interacted, starting video...");
+    setUserInteracted(true);
+  };
 
   useEffect(() => {
     if (!isEnding) {
       return undefined;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.pause();
     }
 
     const timeout = window.setTimeout(onComplete, 1600);
@@ -250,6 +344,13 @@ function IntroExperience({ onComplete }) {
 
   const handleSkip = () => {
     setIsEnding(true);
+  };
+
+  const toggleVideoMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsVideoMuted(videoRef.current.muted);
+    }
   };
 
   return (
@@ -271,39 +372,62 @@ function IntroExperience({ onComplete }) {
           }}
           transition={{ duration: 2.5, ease: "easeOut" }}
         >
-          <ReactPlayer
-            url={photographer.introVideo}
-            playing={!isEnding}
-            muted
-            playsinline
-            width="100%"
-            height="100%"
-            onEnded={() => setIsEnding(true)}
-            onError={() => setIsEnding(true)}
+          <video
+            ref={videoRef}
+            src="/akshay pooja mix vertical.mp4"
+            muted={isVideoMuted}
+            playsInline
+            preload="auto"
+            loop={false}
+            className="absolute top-1/2 left-1/2 object-cover origin-center"
             style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              objectFit: "cover",
-            }}
-            config={{
-              instagram: {
-                playerVars: {
-                  hide_caption: 1,
-                },
-              },
+              width: "100vh", // Swap width/height for rotated video
+              height: "100vw",
+              transform: "translate(-50%, -50%) rotate(-90deg)", // 90 degrees left rotation
             }}
           />
         </motion.div>
       </div>
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.2),rgba(0,0,0,0.72))]" />
 
+      {/* Tap to start button (only visible before user interacts) */}
+      <AnimatePresence>
+        {!userInteracted && !isEnding && (
+          <motion.button
+            type="button"
+            onClick={handleUserInteraction}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 z-30 flex items-center justify-center text-center"
+          >
+            <div className="rounded-full border border-white/30 bg-white/10 px-8 py-4 backdrop-blur-md">
+              <p className="text-lg font-medium text-white">Tap to Start</p>
+              <p className="text-xs text-white/70 mt-1">
+                Enjoy the show with sound!
+              </p>
+            </div>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        type="button"
+        onClick={toggleVideoMute}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: isEnding ? 0 : userInteracted ? 1 : 0, x: 0 }}
+        transition={{ delay: 1, duration: 0.8 }}
+        className="absolute bottom-8 left-8 z-20 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:bg-white/10 hover:text-white"
+      >
+        {isVideoMuted ? "Play with Sound" : "Mute"}
+      </motion.button>
+
       <motion.button
         type="button"
         onClick={handleSkip}
         initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: isEnding ? 0 : 1, x: 0 }}
+        animate={{ opacity: isEnding ? 0 : userInteracted ? 1 : 0, x: 0 }}
         transition={{ delay: 1, duration: 0.8 }}
         className="absolute bottom-8 right-8 z-20 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:bg-white/10 hover:text-white"
       >
@@ -406,7 +530,6 @@ function Navigation() {
       "home",
       "about",
       "captured",
-      "projects",
       "services",
       "gallery-trigger",
       "contact",
@@ -451,7 +574,6 @@ function Navigation() {
     { label: "Home", section: "home" },
     { label: "About", section: "about" },
     { label: "Gallery", section: "captured" },
-    { label: "Projects", section: "projects" },
     { label: "Services", section: "services" },
     { label: "Contact", section: "contact" },
   ];
@@ -507,11 +629,24 @@ function Navigation() {
           <nav className="hidden items-center gap-2 md:flex">
             {navItems.map((item) => {
               const isGallery = item.section === "captured";
-              const isProjects = item.section === "projects";
-              const active =
-                (isGallery && location.pathname === "/gallery") ||
-                (isProjects && location.pathname === "/projects") ||
-                (location.pathname === "/" && activeSection === item.section);
+              const isContact = item.section === "contact";
+              let active = false;
+              if (isContact) {
+                // Check if contact section is in view
+                const contactSection = document.getElementById("contact");
+                if (contactSection) {
+                  const rect = contactSection.getBoundingClientRect();
+                  const isInView =
+                    rect.top < window.innerHeight / 2 &&
+                    rect.bottom > window.innerHeight / 2;
+                  active = isInView && location.pathname === "/";
+                }
+              } else if (isGallery) {
+                active = location.pathname === "/gallery";
+              } else {
+                active =
+                  location.pathname === "/" && activeSection === item.section;
+              }
 
               return (
                 <button
@@ -562,7 +697,7 @@ function Navigation() {
             </div>
             <button
               type="button"
-              onClick={() => handleAnchor("services")}
+              onClick={() => handleAnchor("contact")}
               className="ml-2 rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/70 transition-all duration-300 hover:border-amber-200/30 hover:bg-amber-200/[0.08] hover:text-amber-200"
             >
               Book Now
@@ -650,12 +785,25 @@ function Navigation() {
                 <div className="flex flex-col gap-1">
                   {navItems.map((item, index) => {
                     const isGallery = item.section === "captured";
-                    const isProjects = item.section === "projects";
-                    const active =
-                      (isGallery && location.pathname === "/gallery") ||
-                      (isProjects && location.pathname === "/projects") ||
-                      (location.pathname === "/" &&
-                        activeSection === item.section);
+                    const isContact = item.section === "contact";
+                    let active = false;
+                    if (isContact) {
+                      // Check if contact section is in view
+                      const contactSection = document.getElementById("contact");
+                      if (contactSection) {
+                        const rect = contactSection.getBoundingClientRect();
+                        const isInView =
+                          rect.top < window.innerHeight / 2 &&
+                          rect.bottom > window.innerHeight / 2;
+                        active = isInView && location.pathname === "/";
+                      }
+                    } else if (isGallery) {
+                      active = location.pathname === "/gallery";
+                    } else {
+                      active =
+                        location.pathname === "/" &&
+                        activeSection === item.section;
+                    }
 
                     return (
                       <motion.button
@@ -707,7 +855,7 @@ function Navigation() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
                   type="button"
-                  onClick={() => handleAnchor("services")}
+                  onClick={() => handleAnchor("contact")}
                   className="mt-10 w-full rounded-full border border-amber-200/20 bg-amber-200/[0.06] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/80 transition-all hover:bg-amber-200/[0.12] hover:text-amber-200"
                 >
                   Book a Session
@@ -963,9 +1111,7 @@ function App() {
                 <Routes location={location}>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/gallery" element={<GalleryPage />} />
-                  <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/services" element={<ServicesPage />} />
-                  <Route path="/story/:slug" element={<StoryPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </motion.div>

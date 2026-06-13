@@ -7,7 +7,7 @@ export const photographer = {
   shortBio:
     "I capture stories, emotions, and moments that would otherwise be forgotten.",
   location: "Satara, Maharashtra",
-  email: "ajaybhosale@dummy.com",
+  email: "bhosaleajay81808@gmail.com",
   phone: "+91 8180857920",
   instagram: "chitrography_films",
   youtube: "ajaybhosalecinematography96",
@@ -343,12 +343,7 @@ export const faqs = [
   {
     question: "How far in advance should I book?",
     answer:
-      "For weddings and large events, I recommend booking 3–6 months in advance to secure your date. For portrait sessions and smaller shoots, 2–4 weeks is usually sufficient.",
-  },
-  {
-    question: "What is the typical delivery timeline?",
-    answer:
-      "Portrait and session galleries are delivered within 7–10 business days. Wedding and event galleries take 3–4 weeks. Cinematic films are delivered within 4–6 weeks depending on complexity.",
+      "For weddings and large events, I recommend booking 2-4 weeks in advance to secure your date. For portrait sessions and smaller shoots, 2–4 days is usually sufficient.",
   },
   {
     question: "Do you travel for assignments?",
@@ -358,43 +353,38 @@ export const faqs = [
   {
     question: "What equipment do you use?",
     answer:
-      "I shoot primarily with Sony Alpha mirrorless systems — A1, A7R V, and A7 IV bodies paired with GM lenses. For video, I use cinema-grade stabilisation and audio equipment for a polished final product.",
+      "I shoot primarily with Sony Alpha — A7 Mark III, IV, V, Fx 3, A7S3 bodies paired with Sigma 35mm 1.4, Sigma 50mm 1.2, GM 85mm 1.4, GM 50mm 1.4, GM 24-70mm GM II lenses. For video, I use audio equipment like bluetooth mike, camera mike for a polished final product.",
   },
   {
     question: "Can I customise a package?",
     answer:
       "Every project is unique. The Silver, Gold, and Diamond packages are starting points — I’m happy to design a bespoke package tailored to your vision, timeline, and budget. Just reach out on WhatsApp.",
   },
-  {
-    question: "How are the final photos delivered?",
-    answer:
-      "Digital galleries are delivered via a private online link. Premium packages include a USB drive and/or a handcrafted leather album. All images are professionally colour-graded and retouched.",
-  },
 ];
 
 export const testimonials = [
   {
-    name: "Ananya Kulkarni",
-    role: "Editorial Producer",
+    name: "Shivani Hinge",
+    role: "Client",
     rating: 5,
-    image: photos[1].image,
+    image: "/Testimonials/Testimonials image 1.jpeg",
     review:
-      "Ajay photographs emotion without forcing it. Every frame feels luxurious, honest, and cinematic.",
+      "Thank you for turning our big day into memories we’ll relive forever. The video gave us beautiful memories ❤️",
   },
   {
-    name: "Luca Moretti",
-    role: "Brand Director",
+    name: "Akshay Nikam",
+    role: "Client",
     rating: 5,
-    image: photos[10].image,
+    image: "/Testimonials/Testimonials image 2.jpeg",
     review:
-      "The project felt less like a shoot and more like an art direction session built around story and atmosphere.",
+      "Ajay captured our wedding beautifully. The photos feel natural, emotional, and full of memories. We are extremely happy with the results.",
   },
   {
-    name: "Maya Thomas",
-    role: "Travel Editor",
+    name: "Akshay Katte",
+    role: "Client",
     rating: 5,
-    image: photos[2].image,
+    image: "/Testimonials/Testimonials image 3.jpeg",
     review:
-      "He sees narrative in ordinary transitions. The final gallery carried the mood of an award-winning short film.",
+      "Very professional, friendly, and creative. The final photos exceeded my expectations and perfectly captured the moments.",
   },
 ];

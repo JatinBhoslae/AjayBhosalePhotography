@@ -17,17 +17,20 @@ const plans = [
   {
     name: "Silver",
     icon: IoCameraOutline,
-    price: "₹15,000",
+    price: "₹35,000",
     unit: "per session",
     description:
       "Perfect for portraits, maternity shoots, and personal branding.",
     features: [
-      "Up to 2 hours shoot",
-      "1 location",
-      "50+ edited photos",
-      "Online gallery delivery",
-      "Basic retouching included",
-      "Digital delivery in 7 days",
+      "All Traditional Photos",
+      "(Couple 10 pic edit)",
+      "Full HD Traditional Video ",
+      "(Couple Reel)",
+      "(Cinematic Highlight Video)",
+      "25 Page Album",
+      "(Mini Album)",
+      "(Couple Calender)",
+      "(Leather Bag)",
     ],
     accent: "from-white/10 to-white/[0.03]",
     border: "border-white/10",
@@ -37,54 +40,61 @@ const plans = [
   {
     name: "Gold",
     icon: IoStarOutline,
-    price: "₹35,000",
+    price: "₹65,000",
     unit: "per event",
     description:
       "Ideal for weddings, engagements, and small events with cinematic coverage.",
     features: [
-      "Up to 6 hours coverage",
-      "Multiple locations",
-      "200+ edited photos",
-      "Highlight video (2–3 min)",
-      "Advanced retouching & color grading",
-      "Online gallery + USB delivery",
-      "Delivery within 14 days",
-      "1 complimentary pre-shoot consultation",
+      "All Traditional Photos",
+      "Full HD Traditional Video ",
+      "(Gavdev Reel)",
+      "(Couple Reel)",
+      "(Cinematic Highlight Video)",
+      "Candid Photos",
+      "(With 25 Pic Edit)",
+      "30 Page Album",
+      "(Mini Album)",
+      "(Couple Calender)",
+      "(Leather Bag)",
     ],
     accent: "from-amber-200/[0.12] to-amber-200/[0.03]",
     border: "border-amber-200/20",
     badge: "Most Popular",
+    specialOffer: "Free Drone Shoot",
     cta: "Book Gold",
   },
   {
     name: "Diamond",
     icon: IoDiamondOutline,
-    price: "₹75,000",
+    price: "₹95,000",
     unit: "per project",
     description:
       "Full-scale luxury documentary — multi-day events, films, and premium albums.",
     features: [
-      "Full-day / multi-day coverage",
-      "Unlimited locations",
-      "500+ edited photos",
-      "Cinematic film (5–10 min)",
-      "Teaser video for social media",
-      "Premium leather photo album",
-      "Drone aerial coverage",
-      "Priority delivery within 21 days",
-      "Dedicated project manager",
-      "2 pre-shoot consultations",
+      "All Traditional Photos",
+      "Full HD Traditional Video ",
+      "Candid Photos",
+      "(With 25 Pic Edit)",
+      "Drone Shoot",
+      "Cinematic Video",
+      "(Gavdev Reel)",
+      "(Couple Reel)",
+      "30 Page Album",
+      "(Mini Album)",
+      "(Couple Calender)",
+      "(Leather Bag)",
     ],
     accent: "from-violet-300/[0.10] to-violet-300/[0.02]",
     border: "border-violet-300/20",
     badge: "Premium",
+    specialOffer: "Pre-Wedding Shoot Free",
     cta: "Book Diamond",
   },
 ];
 
 const addOns = [
-  { icon: IoFilmOutline, title: "Extra Cinematic Film", price: "₹12,000" },
-  { icon: IoImagesOutline, title: "Drone Aerial Coverage", price: "₹8,000" },
+  { icon: IoFilmOutline, title: "Extra Cinematic Film", price: "₹20,000" },
+  { icon: IoImagesOutline, title: "Drone Aerial Coverage", price: "₹15,000" },
   { icon: IoSparklesOutline, title: "Premium Photo Album", price: "₹10,000" },
 ];
 
@@ -163,9 +173,9 @@ export default function ServicesPage() {
 
                   {/* Features */}
                   <ul className="mb-10 flex flex-1 flex-col gap-3">
-                    {plan.features.map((feature) => (
+                    {plan.features.map((feature, idx) => (
                       <li
-                        key={feature}
+                        key={idx}
                         className="flex items-start gap-3 text-sm text-white/60"
                       >
                         <IoCheckmarkCircle
@@ -175,6 +185,36 @@ export default function ServicesPage() {
                         <span>{feature}</span>
                       </li>
                     ))}
+                    {/* Highlighted Special Offer */}
+                    {plan.specialOffer && (
+                      <li className="flex items-start gap-3 text-sm">
+                        <IoStarOutline
+                          size={18}
+                          className={`mt-0.5 shrink-0 ${
+                            plan.name === "Gold"
+                              ? "text-amber-400 animate-pulse"
+                              : "text-violet-400 animate-pulse"
+                          }`}
+                        />
+                        <span
+                          className={`font-semibold flex items-center gap-2 ${
+                            plan.name === "Gold"
+                              ? "text-amber-300"
+                              : "text-violet-300"
+                          }`}
+                        >
+                          <span
+                            className={`px-2 py-0.5 rounded-lg border ${
+                              plan.name === "Gold"
+                                ? "bg-amber-500/20 border-amber-400/30"
+                                : "bg-violet-500/20 border-violet-400/30"
+                            }`}
+                          >
+                            🌟 {plan.specialOffer}
+                          </span>
+                        </span>
+                      </li>
+                    )}
                   </ul>
 
                   {/* CTA */}

@@ -1,8 +1,9 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import emailjs from "@emailjs/browser";
 import {
   IoArrowForward,
   IoLogoInstagram,
@@ -19,16 +20,20 @@ import {
   IoCheckmarkCircle,
   IoLogoWhatsapp,
   IoChevronDownOutline,
+  IoSparklesOutline,
+  IoCheckmarkCircleOutline,
+  IoAlertCircleOutline,
+  IoLocationOutline,
 } from "react-icons/io5";
 import { HeroCameraCanvas } from "../components/CameraScene.jsx";
 import Reveal from "../components/Reveal.jsx";
-import { useInstagramFeed } from "../hooks/useInstagramFeed.js";
+import BeforeAfterSlider from "../components/BeforeAfterSlider.jsx";
+import { cloudinaryImage } from "../lib/cloudinary.js";
 import {
   categories,
   faqs,
   photographer,
   photos,
-  projects,
   testimonials,
 } from "../data/portfolio";
 
@@ -64,6 +69,16 @@ function SectionShell({ id, eyebrow, title, copy, children, className = "" }) {
 }
 
 function HeroSection() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const images = ["/home image 1.jpg", "/home image 2.jpg"];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section
       id="home"
@@ -71,12 +86,18 @@ function HeroSection() {
     >
       {/* Background Image with Cinematic Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="/home image 1.jpg"
-          alt="Background"
-          className="blur-placeholder h-full w-full object-cover"
-          onLoad={(e) => e.target.classList.add("loaded")}
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentImageIndex}
+            src={images[currentImageIndex]}
+            alt="Cinematic background photo"
+            className="h-full w-full object-cover"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+          />
+        </AnimatePresence>
         {/* Gradient Overlay for Text Readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0a0a0a]" />
       </div>
@@ -201,8 +222,8 @@ function AnimatedCounter({ end, suffix = "", duration = 2 }) {
 }
 
 const statsDisplay = [
-  { value: 12, suffix: "+", label: "Years Experience" },
-  { value: 100, suffix: "+", label: "Orders Delivered" },
+  { value: 3, suffix: "+", label: "Years Experience" },
+  { value: 200, suffix: "+", label: "Orders Delivered" },
 ];
 
 // Stats are rendered inline inside AboutSection beside Experience
@@ -254,7 +275,7 @@ function AboutSection() {
             <Reveal className="relative">
               <div className="aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/10 sm:rounded-[2.5rem]">
                 <img
-                  src={photographer.portrait}
+                  src="/home image 2.jpg"
                   alt={photographer.name}
                   loading="lazy"
                   className="blur-placeholder h-full w-full object-cover"
@@ -276,6 +297,235 @@ function AboutSection() {
     </section>
   );
 }
+
+// const stories = [
+//   {
+//     id: 1,
+//     title: "Couple Portrait at Sunset",
+//     location: "Marine Drive, Mumbai",
+//     camera: "Sony A7 IV",
+//     time: "Golden Hour – 6:42 PM",
+//     category: "Portrait Photography",
+//     image: "/home image 1.jpg",
+//     story:
+//       "The sky had been cloudy throughout the day. Just a few minutes before sunset, the clouds opened and created a soft golden light across the entire coastline. We had only a short window to capture the moment before the light disappeared. The resulting photograph became one of the most memorable images from the session.",
+//   },
+//   {
+//     id: 2,
+//     title: "Street Photography in Mumbai",
+//     location: "Chor Bazaar, Mumbai",
+//     camera: "Sony A7R V",
+//     time: "Blue Hour – 7:15 PM",
+//     category: "Street Photography",
+//     image: "/home image 2.jpg",
+//     story:
+//       "The bustling streets of Chor Bazaar came alive as evening approached. I was drawn to the interplay of neon signs and rain-soaked pavements. A vendor arranging his vintage goods caught my eye — his expression told a story of years of dedication to his craft. I waited for the perfect moment when a passing car's headlights illuminated the scene.",
+//   },
+//   {
+//     id: 3,
+//     title: "Monsoon Reflection Shot",
+//     location: "Gateway of India, Mumbai",
+//     camera: "Sony A7S III",
+//     time: "Rainy Evening – 8:00 PM",
+//     category: "Landscape & Architecture",
+//     image: "/images/3.jpg",
+//     story:
+//       "Monsoon rains had just passed, leaving beautiful reflections on the wet pavement. The Gateway of India stood majestically against the dramatic sky. I positioned my camera low to the ground to capture the symmetry between the monument and its reflection — a timeless moment frozen in time.",
+//   },
+//   {
+//     id: 4,
+//     title: "Mountain Landscape at Sunrise",
+//     location: "Lonavala Ghats, Maharashtra",
+//     camera: "Sony A1",
+//     time: "Sunrise – 6:05 AM",
+//     category: "Landscape Photography",
+//     image: "/images/4.jpg",
+//     story:
+//       "Waking up at 4 AM was definitely worth it. The mist was rolling through the valleys as the first rays of sun peeked over the mountains. The temperature was crisp, and the silence was only broken by the sound of birds. I set up my tripod and waited for that magical moment when the light hit the peaks just right — pure magic.",
+//   },
+// ];
+//
+// function StoriesBehindTheShot() {
+//   const [activeStoryIndex, setActiveStoryIndex] = useState(0);
+//   const containerRef = useRef(null);
+//
+//   useEffect(() => {
+//     gsap.registerPlugin(ScrollTrigger);
+//     const container = containerRef.current;
+//     if (!container) return;
+//
+//     const storyPanels = container.querySelectorAll(".story-panel");
+//     storyPanels.forEach((panel, index) => {
+//       ScrollTrigger.create({
+//         trigger: panel,
+//         start: "top center",
+//         onEnter: () => setActiveStoryIndex(index),
+//         onEnterBack: () => setActiveStoryIndex(index),
+//       });
+//     });
+//
+//     return () => ScrollTrigger.getAll().forEach((st) => st.kill());
+//   }, []);
+//
+//   const activeStory = stories[activeStoryIndex];
+//
+//   return (
+//     <section id="stories" className="relative py-24 sm:py-32 overflow-hidden">
+//       <div className="absolute inset-0 pointer-events-none overflow-hidden">
+//         {Array.from({ length: 20 }).map((_, i) => (
+//           <motion.div
+//             key={i}
+//             className="absolute rounded-full bg-amber-200/5"
+//             style={{
+//               width: Math.random() * 40 + 10,
+//               height: Math.random() * 40 + 10,
+//               left: `${Math.random() * 100}%`,
+//               top: `${Math.random() * 100}%`,
+//             }}
+//             animate={{
+//               y: [0, -30, 0],
+//               opacity: [0.2, 0.5, 0.2],
+//             }}
+//             transition={{
+//               duration: Math.random() * 10 + 10,
+//               repeat: Infinity,
+//               ease: "easeInOut",
+//               delay: Math.random() * 5,
+//             }}
+//           />
+//         ))}
+//       </div>
+//
+//       <div className="relative mx-auto max-w-7xl px-6 sm:px-8">
+//         <div className="grid gap-16 lg:grid-cols-2 lg:items-center lg:gap-20">
+//           <div className="relative order-2 lg:order-1">
+//             <Reveal>
+//               <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.02]">
+//                 <AnimatePresence mode="wait">
+//                   <motion.div
+//                     key={activeStory.id}
+//                     initial={{ opacity: 0, scale: 1.1 }}
+//                     animate={{ opacity: 1, scale: 1 }}
+//                     exit={{ opacity: 0, scale: 0.95 }}
+//                     transition={{ duration: 1, ease: [0.65, 0, 0.35, 1] }}
+//                     className="absolute inset-0"
+//                   >
+//                     <img
+//                       src={activeStory.image}
+//                       alt={activeStory.title}
+//                       className="h-full w-full object-cover"
+//                     />
+//                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+//                   </motion.div>
+//                 </AnimatePresence>
+//
+//                 <div className="absolute -inset-4 -z-10 rounded-[3rem] bg-amber-200/10 blur-3xl" />
+//               </div>
+//
+//               <motion.div
+//                 className="absolute -bottom-6 -left-6 sm:-bottom-10 sm:-left-10 rounded-2xl border border-white/20 bg-black/80 p-6 backdrop-blur-xl"
+//                 initial={{ y: 20, opacity: 0 }}
+//                 animate={{ y: 0, opacity: 1 }}
+//                 transition={{ duration: 0.8, delay: 0.2 }}
+//               >
+//                 <p className="font-display text-lg text-amber-200 sm:text-xl">
+//                   {activeStory.title}
+//                 </p>
+//                 <p className="mt-1 text-[10px] uppercase tracking-widest text-white/50 sm:text-xs">
+//                   {activeStory.location}
+//                 </p>
+//               </motion.div>
+//             </Reveal>
+//           </div>
+//
+//           <div className="order-1 lg:order-2">
+//             <Reveal>
+//               <p className="text-[10px] uppercase tracking-[0.45em] text-amber-200/70 sm:text-xs">
+//                 STORY BEHIND THE SHOT
+//               </p>
+//               <h2 className="mt-4 font-display text-4xl leading-tight text-white sm:text-5xl md:text-6xl">
+//                 Every photograph has a <br />
+//                 <span className="text-white/40 italic">story.</span>
+//               </h2>
+//               <p className="mt-6 text-base leading-relaxed text-white/60 sm:text-lg">
+//                 A great photograph is more than composition and lighting. It is
+//                 a memory, an emotion, and a moment that can never be recreated.
+//                 Explore the stories behind some of my favorite captures.
+//               </p>
+//             </Reveal>
+//
+//             <div className="mt-10 space-y-8" ref={containerRef}>
+//               {stories.map((story, index) => (
+//                 <div
+//                   key={story.id}
+//                   className={`story-panel rounded-3xl border transition-all duration-500 ${
+//                     activeStoryIndex === index
+//                       ? "border-amber-200/30 bg-gradient-to-b from-amber-200/10 to-white/[0.02]"
+//                       : "border-white/10 bg-white/[0.02]"
+//                   } p-6 sm:p-8 backdrop-blur-xl`}
+//                 >
+//                   <div className="grid gap-4 sm:grid-cols-2 mb-6">
+//                     <div>
+//                       <p className="text-[9px] uppercase tracking-[0.3em] text-amber-200/60">
+//                         📍 Location
+//                       </p>
+//                       <p className="mt-1 text-sm text-white/80">
+//                         {story.location}
+//                       </p>
+//                     </div>
+//                     <div>
+//                       <p className="text-[9px] uppercase tracking-[0.3em] text-amber-200/60">
+//                         📷 Camera
+//                       </p>
+//                       <p className="mt-1 text-sm text-white/80">
+//                         {story.camera}
+//                       </p>
+//                     </div>
+//                     <div>
+//                       <p className="text-[9px] uppercase tracking-[0.3em] text-amber-200/60">
+//                         🕒 Capture Time
+//                       </p>
+//                       <p className="mt-1 text-sm text-white/80">{story.time}</p>
+//                     </div>
+//                     <div>
+//                       <p className="text-[9px] uppercase tracking-[0.3em] text-amber-200/60">
+//                         🎯 Category
+//                       </p>
+//                       <p className="mt-1 text-sm text-white/80">
+//                         {story.category}
+//                       </p>
+//                     </div>
+//                   </div>
+//
+//                   <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+//
+//                   <p className="text-[10px] uppercase tracking-[0.3em] text-amber-200/60 mb-3">
+//                     THE STORY
+//                   </p>
+//                   <p className="text-sm leading-relaxed text-white/70 sm:text-base">
+//                     {story.story}
+//                   </p>
+//
+//                   <div className="mt-6 mb-6 h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+//                 </div>
+//               ))}
+//             </div>
+//
+//             <Reveal delay={0.1}>
+//               <Link
+//                 to="/gallery"
+//                 className="mt-10 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-8 py-4 text-[10px] font-medium uppercase tracking-[0.3em] text-white transition-all hover:bg-amber-200/20 hover:border-amber-200/40 sm:text-xs"
+//               >
+//                 View Full Gallery
+//                 <IoArrowForward />
+//               </Link>
+//             </Reveal>
+//           </div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }
 
 function CapturedMomentsSection() {
   const displayPhotos = photos.slice(0, 10);
@@ -362,122 +612,26 @@ function CategoriesSection() {
   );
 }
 
-function FeaturedProjectsSection() {
-  const navigate = useNavigate();
-  const displayProjects = projects.slice(0, 2);
-  return (
-    <section id="projects" className="py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 sm:px-8">
-        <Reveal>
-          <p className="text-[10px] uppercase tracking-[0.45em] text-amber-200/70 sm:text-xs">
-            Thematic Work
-          </p>
-          <h2 className="mt-4 font-display text-4xl leading-tight text-white sm:text-5xl md:text-6xl">
-            Selected narratives.
-          </h2>
-        </Reveal>
-
-        <div className="mt-16 space-y-24 sm:mt-20 sm:space-y-32">
-          {displayProjects.map((project, index) => (
-            <div
-              key={project.name}
-              className={`grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-16`}
-            >
-              <div className={index % 2 === 1 ? "lg:order-2" : ""}>
-                <Reveal>
-                  <p className="text-[10px] uppercase tracking-[0.45em] text-amber-200/70 sm:text-xs">
-                    {project.location}
-                  </p>
-                  <h3 className="mt-4 font-display text-3xl text-white sm:text-4xl md:text-5xl">
-                    {project.name}
-                  </h3>
-                  <p className="mt-6 text-base leading-relaxed text-white/60 sm:text-lg">
-                    {project.story}
-                  </p>
-                  <div className="mt-8 sm:mt-10">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const firstPhoto = photos.find((p) =>
-                          project.images.includes(p.image),
-                        );
-                        if (firstPhoto) navigate(`/story/${firstPhoto.slug}`);
-                      }}
-                      className="inline-flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.3em] text-amber-200 transition hover:gap-4 sm:text-xs"
-                    >
-                      View Project Case Study <IoArrowForward />
-                    </button>
-                  </div>
-                </Reveal>
-              </div>
-              <div className={index % 2 === 1 ? "lg:order-1" : ""}>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  <Reveal className="col-span-2 overflow-hidden rounded-2xl border border-white/10 sm:rounded-3xl">
-                    <img
-                      src={project.images[0]}
-                      alt={project.name}
-                      loading="lazy"
-                      className="blur-placeholder aspect-[16/9] w-full object-cover"
-                      onLoad={(e) => e.target.classList.add("loaded")}
-                    />
-                  </Reveal>
-                  <Reveal
-                    delay={0.1}
-                    className="overflow-hidden rounded-2xl border border-white/10 sm:rounded-3xl"
-                  >
-                    <img
-                      src={project.images[1]}
-                      alt={project.name}
-                      loading="lazy"
-                      className="blur-placeholder aspect-square w-full object-cover"
-                      onLoad={(e) => e.target.classList.add("loaded")}
-                    />
-                  </Reveal>
-                  <Reveal
-                    delay={0.2}
-                    className="overflow-hidden rounded-2xl border border-white/10 sm:rounded-3xl"
-                  >
-                    <img
-                      src={project.images[2]}
-                      alt={project.name}
-                      loading="lazy"
-                      className="blur-placeholder aspect-square w-full object-cover"
-                      onLoad={(e) => e.target.classList.add("loaded")}
-                    />
-                  </Reveal>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-16 text-center sm:mt-20">
-          <Link
-            to="/projects"
-            className="inline-flex w-full items-center justify-center gap-3 rounded-full border border-white/15 bg-white/5 px-8 py-5 text-[10px] font-medium uppercase tracking-[0.25em] text-white transition hover:bg-white/10 sm:w-auto sm:py-4 sm:text-xs"
-          >
-            View All Projects
-            <IoArrowForward />
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
+// Removed FeaturedProjectsSection
 
 const servicePlans = [
   {
     name: "Silver",
     icon: IoCameraOutline,
-    price: "₹15,000",
+    price: "₹35,000",
     unit: "per session",
     description:
       "Perfect for portraits, maternity shoots, and personal branding.",
     features: [
-      "Up to 2 hours shoot",
-      "50+ edited photos",
-      "Online gallery delivery",
-      "Digital delivery in 7 days",
+      "All Traditional Photos",
+      "(Couple 10 pic edit)",
+      "Full HD Traditional Video ",
+      "(Couple Reel)",
+      "(Cinematic Highlight Video)",
+      "25 Page Album",
+      "(Mini Album)",
+      "(Couple Calender)",
+      "(Leather Bag)",
     ],
     border: "border-white/10",
     accent: "from-white/10 to-white/[0.03]",
@@ -485,36 +639,53 @@ const servicePlans = [
   {
     name: "Gold",
     icon: IoStarOutline,
-    price: "₹35,000",
+    price: "₹65,000",
     unit: "per event",
     description:
       "Ideal for weddings, engagements, and small events with cinematic coverage.",
     features: [
-      "Up to 6 hours coverage",
-      "200+ edited photos",
-      "Highlight video (2–3 min)",
-      "Online gallery + USB delivery",
+      "All Traditional Photos",
+      "Full HD Traditional Video ",
+      "(Gavdev Reel)",
+      "(Couple Reel)",
+      "(Cinematic Highlight Video)",
+      "Candid Photos",
+      "(With 25 Pic Edit)",
+      "30 Page Album",
+      "(Mini Album)",
+      "(Couple Calender)",
+      "(Leather Bag)",
     ],
     border: "border-amber-200/20",
     accent: "from-amber-200/[0.12] to-amber-200/[0.03]",
     badge: "Most Popular",
+    specialOffer: "Free Drone Shoot",
   },
   {
     name: "Diamond",
     icon: IoDiamondOutline,
-    price: "₹75,000",
+    price: "₹95,000",
     unit: "per project",
     description:
       "Full-scale luxury documentary — multi-day events, films, and premium albums.",
     features: [
-      "Full-day / multi-day coverage",
-      "500+ edited photos",
-      "Cinematic film (5–10 min)",
-      "Premium leather photo album",
+      "All Traditional Photos",
+      "Full HD Traditional Video ",
+      "Candid Photos",
+      "(With 25 Pic Edit)",
+      "Drone Shoot",
+      "Cinematic Video",
+      "(Gavdev Reel)",
+      "(Couple Reel)",
+      "30 Page Album",
+      "(Mini Album)",
+      "(Couple Calender)",
+      "(Leather Bag)",
     ],
     border: "border-violet-300/20",
     accent: "from-violet-300/[0.10] to-violet-300/[0.02]",
     badge: "Premium",
+    specialOffer: "Pre-Wedding Shoot Free",
   },
 ];
 
@@ -581,9 +752,9 @@ function ServicesPreviewSection() {
                   <div className="mb-8 h-px w-full bg-white/[0.06]" />
 
                   <ul className="mb-10 flex flex-1 flex-col gap-3">
-                    {plan.features.map((feature) => (
+                    {plan.features.map((feature, idx) => (
                       <li
-                        key={feature}
+                        key={idx}
                         className="flex items-start gap-3 text-sm text-white/60"
                       >
                         <IoCheckmarkCircle
@@ -593,6 +764,36 @@ function ServicesPreviewSection() {
                         <span>{feature}</span>
                       </li>
                     ))}
+                    {/* Highlighted Special Offer */}
+                    {plan.specialOffer && (
+                      <li className="flex items-start gap-3 text-sm">
+                        <IoStarOutline
+                          size={18}
+                          className={`mt-0.5 shrink-0 ${
+                            plan.name === "Gold"
+                              ? "text-amber-400 animate-pulse"
+                              : "text-violet-400 animate-pulse"
+                          }`}
+                        />
+                        <span
+                          className={`font-semibold flex items-center gap-2 ${
+                            plan.name === "Gold"
+                              ? "text-amber-300"
+                              : "text-violet-300"
+                          }`}
+                        >
+                          <span
+                            className={`px-2 py-0.5 rounded-lg border ${
+                              plan.name === "Gold"
+                                ? "bg-amber-500/20 border-amber-400/30"
+                                : "bg-violet-500/20 border-violet-400/30"
+                            }`}
+                          >
+                            🌟 {plan.specialOffer}
+                          </span>
+                        </span>
+                      </li>
+                    )}
                   </ul>
 
                   <a
@@ -720,10 +921,12 @@ function TestimonialsSection() {
                     />
                   </div>
                   <div>
-                     <h4 className="font-display text-xl text-white">{t.name}</h4>
-                     <p className="text-xs uppercase tracking-widest text-white/40">
-                       {t.role}
-                     </p>
+                    <h4 className="font-display text-xl text-white">
+                      {t.name}
+                    </h4>
+                    <p className="text-xs uppercase tracking-widest text-white/40">
+                      {t.role}
+                    </p>
                   </div>
                 </div>
                 <p className="mt-8 text-lg italic leading-relaxed text-white/70">
@@ -754,241 +957,6 @@ function TestimonialsSection() {
         </div>
       </div>
     </SectionShell>
-  );
-}
-
-function InstagramFeedSection() {
-  const {
-    posts: instaPosts,
-    loading: instaLoading,
-    error: instaError,
-    isConfigured: instaConfigured,
-    refetch: refetchInsta,
-  } = useInstagramFeed(6);
-
-  // Fallback to local photos if API is not configured
-  const fallbackPhotos = photos.slice(0, 6);
-  const hasRealPosts = instaConfigured && instaPosts.length > 0;
-
-  return (
-    <section id="instagram" className="relative py-20 sm:py-24">
-      <div className="mx-auto max-w-7xl px-6 sm:px-8">
-        <Reveal>
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-amber-500/10 text-white/80">
-                <IoLogoInstagram size={28} />
-              </div>
-              <div className="text-left">
-                <p className="font-display text-xl font-semibold text-white">
-                  @{photographer.instagram}
-                </p>
-                <p className="text-[10px] uppercase tracking-widest text-white/40">
-                  Follow for behind-the-scenes
-                </p>
-              </div>
-            </div>
-            <h2 className="font-display text-4xl leading-tight text-white sm:text-5xl">
-              Latest from Instagram.
-            </h2>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/50 sm:text-base">
-              Fresh frames, behind-the-scenes moments, and visual stories
-              updated daily.
-            </p>
-          </div>
-        </Reveal>
-
-        {/* Loading skeleton */}
-        {instaLoading && (
-          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square animate-pulse rounded-2xl border border-white/[0.06] bg-white/[0.03] sm:rounded-3xl"
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Real Instagram posts from Graph API */}
-        {!instaLoading && hasRealPosts && (
-          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-            {instaPosts.map((post, index) => (
-              <Reveal key={post.id} delay={index * 0.06}>
-                <a
-                  href={post.permalink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] sm:rounded-3xl"
-                >
-                  <img
-                    src={post.imageUrl}
-                    alt={post.caption || "Instagram post"}
-                    loading="lazy"
-                    className="blur-placeholder h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onLoad={(e) => e.target.classList.add("loaded")}
-                  />
-
-                  {/* Video / Carousel indicator */}
-                  {(post.isVideo || post.isCarousel) && (
-                    <div className="absolute top-3 right-3 z-10">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
-                        {post.isVideo ? (
-                          <svg
-                            className="h-3.5 w-3.5 text-white"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                          >
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="h-3.5 w-3.5 text-white"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                            <path d="M9 3v18M3 9h18" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-500 group-hover:bg-black/40">
-                    <div className="opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <div className="flex flex-col items-center gap-2">
-                        <IoLogoInstagram size={28} className="text-white" />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/80">
-                          View Post
-                        </span>
-                        {/* Engagement stats */}
-                        <div className="flex items-center gap-3 text-[10px] text-white/70">
-                          <span className="flex items-center gap-1">
-                            <IoHeartOutline size={12} />
-                            {post.likes}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <svg
-                              className="h-3 w-3"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                            </svg>
-                            {post.comments}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom caption bar */}
-                  {post.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <p className="line-clamp-2 text-xs text-white/90">
-                        {post.caption}
-                      </p>
-                    </div>
-                  )}
-                </a>
-              </Reveal>
-            ))}
-          </div>
-        )}
-
-        {/* API error message */}
-        {!instaLoading && instaConfigured && instaError && !hasRealPosts && (
-          <div className="mt-8 text-center">
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/[0.06] px-4 py-2 text-xs text-amber-200/80">
-              <svg
-                className="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              Instagram feed temporarily unavailable
-              <button
-                onClick={refetchInsta}
-                className="ml-1 underline underline-offset-2 hover:text-amber-100"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Fallback: local portfolio photos when API is not configured */}
-        {!instaLoading && !hasRealPosts && (
-          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-            {fallbackPhotos.map((photo, index) => (
-              <Reveal key={photo.slug || index} delay={index * 0.06}>
-                <a
-                  href={photographer.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] sm:rounded-3xl"
-                >
-                  <img
-                    src={photo.image}
-                    alt={photo.title}
-                    loading="lazy"
-                    className="blur-placeholder h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onLoad={(e) => e.target.classList.add("loaded")}
-                  />
-                  {/* Hover overlay with Instagram icon */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-500 group-hover:bg-black/40">
-                    <motion.div
-                      initial={false}
-                      className="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <IoLogoInstagram size={28} className="text-white" />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/80">
-                          View Post
-                        </span>
-                      </div>
-                    </motion.div>
-                  </div>
-                  {/* Bottom caption bar */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <p className="text-[10px] font-medium uppercase tracking-widest text-white/70">
-                      {photo.location}
-                    </p>
-                    <p className="text-xs text-white/90">{photo.title}</p>
-                  </div>
-                </a>
-              </Reveal>
-            ))}
-          </div>
-        )}
-
-        <Reveal>
-          <div className="mt-10 text-center">
-            <a
-              href={photographer.instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/70 transition-all hover:from-purple-500/20 hover:via-pink-500/20 hover:to-amber-500/20 hover:text-white sm:text-xs"
-            >
-              <IoLogoInstagram size={18} />
-              Follow @{photographer.instagram}
-              <IoArrowForward size={14} />
-            </a>
-          </div>
-        </Reveal>
-      </div>
-    </section>
   );
 }
 
@@ -1055,7 +1023,18 @@ function FAQSection() {
   );
 }
 
-function ContactSection() {
+function ContactSection({
+  formData,
+  setFormData,
+  handleSubmit,
+  status,
+  statusMessage,
+  isSubmitting,
+  handleChange,
+  shootTypes,
+  getWhatsAppUrl,
+  minDate,
+}) {
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = () => {
@@ -1124,7 +1103,7 @@ function ContactSection() {
                 </div>
 
                 <a
-                  href={`https://wa.me/${photographer.phone.replace(/[^0-9]/g, "")}`}
+                  href={getWhatsAppUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center gap-4 sm:gap-5 transition-transform hover:translate-x-2 min-w-0 w-full"
@@ -1188,67 +1167,189 @@ function ContactSection() {
           </Reveal>
 
           <Reveal className="min-w-0 w-full" delay={0.15}>
-            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-8">
-              <form
-                className="grid gap-6 sm:grid-cols-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.target);
-                  const name = formData.get("name");
-                  const email = formData.get("email");
-                  const message = formData.get("message");
-                  const mailtoLink = `mailto:${photographer.email}?subject=${encodeURIComponent(`Inquiry from ${name}`)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`)}`;
-                  window.open(mailtoLink, "_blank");
-                  e.target.reset();
-                }}
-              >
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest text-white/40">
-                    Name <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    name="name"
-                    type="text"
-                    required
-                    minLength={2}
-                    placeholder="Your name"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60 sm:px-6 sm:py-4"
-                  />
+            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-8 backdrop-blur-xl">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                      Full Name <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                      placeholder="Your full name"
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-amber-200/50 focus:outline-none focus:ring-0 sm:px-6 sm:py-4 transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                      Email Address <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      placeholder="your@email.com"
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-amber-200/50 focus:outline-none focus:ring-0 sm:px-6 sm:py-4 transition-all"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest text-white/40">
-                    Email <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    name="email"
-                    type="email"
-                    required
-                    pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
-                    title="Please enter a valid email address"
-                    placeholder="your@email.com"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60 sm:px-6 sm:py-4"
-                  />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                      Phone Number <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      placeholder="+91 98765 43210"
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-amber-200/50 focus:outline-none focus:ring-0 sm:px-6 sm:py-4 transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                      Shoot Type <span className="text-red-400">*</span>
+                    </label>
+                    <select
+                      name="shoot_type"
+                      value={formData.shoot_type}
+                      onChange={handleChange}
+                      required
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-amber-200/50 focus:outline-none focus:ring-0 sm:px-6 sm:py-4 transition-all cursor-pointer"
+                    >
+                      <option value="" disabled>
+                        Select type of shoot
+                      </option>
+                      {shootTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <label className="text-[10px] uppercase tracking-widest text-white/40">
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                      Preferred Date <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      min={minDate}
+                      required
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-200/50 focus:outline-none focus:ring-0 sm:px-6 sm:py-4 transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                      Location <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      required
+                      placeholder="City / Venue"
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-amber-200/50 focus:outline-none focus:ring-0 sm:px-6 sm:py-4 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.3em] text-white/40">
                     Message <span className="text-red-400">*</span>
                   </label>
                   <textarea
                     name="message"
-                    rows={5}
+                    value={formData.message}
+                    onChange={handleChange}
                     required
-                    minLength={10}
-                    placeholder="Tell me about your vision..."
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/20 focus:border-amber-200/50 focus:outline-none focus:ring-0 invalid:[&:not(:focus):not(:placeholder-shown)]:border-red-400/60 sm:px-6 sm:py-4"
+                    rows={5}
+                    placeholder="Tell me about your vision, requirements, or any special requests..."
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-amber-200/50 focus:outline-none focus:ring-0 sm:px-6 sm:py-4 transition-all resize-none"
                   />
                 </div>
-                <div className="sm:col-span-2">
+
+                <AnimatePresence>
+                  {statusMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className={`rounded-2xl border p-4 sm:p-6 flex items-start gap-3 ${
+                        status === "success"
+                          ? "border-green-500/30 bg-green-500/10"
+                          : status === "error"
+                            ? "border-red-500/30 bg-red-500/10"
+                            : "border-amber-200/30 bg-amber-200/10"
+                      }`}
+                    >
+                      {status === "success" ? (
+                        <IoCheckmarkCircleOutline
+                          size={20}
+                          className="mt-0.5 shrink-0 text-green-400"
+                        />
+                      ) : status === "error" ? (
+                        <IoAlertCircleOutline
+                          size={20}
+                          className="mt-0.5 shrink-0 text-red-400"
+                        />
+                      ) : (
+                        <IoSparklesOutline
+                          size={20}
+                          className="mt-0.5 shrink-0 text-amber-200 animate-pulse"
+                        />
+                      )}
+                      <p
+                        className={`text-sm leading-relaxed ${
+                          status === "success"
+                            ? "text-green-200"
+                            : status === "error"
+                              ? "text-red-200"
+                              : "text-amber-100"
+                        }`}
+                      >
+                        {statusMessage}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                   <button
                     type="submit"
-                    className="w-full rounded-full bg-white py-4 text-[10px] font-bold uppercase tracking-[0.45em] text-black transition hover:bg-amber-100 sm:py-6 sm:text-xs"
+                    disabled={isSubmitting}
+                    className="flex-1 rounded-full border border-amber-200/20 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 px-8 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-white shadow-lg shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Enquiry"}
                   </button>
+
+                  <a
+                    href={getWhatsAppUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 rounded-full border border-[#25D366]/30 bg-[#25D366]/10 px-8 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#25D366] transition-all duration-300 hover:bg-[#25D366]/20 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    <IoLogoWhatsapp size={16} />
+                    WhatsApp Instead
+                  </a>
                 </div>
               </form>
             </div>
@@ -1294,7 +1395,6 @@ function Footer() {
             <div className="flex flex-col gap-3">
               {[
                 { label: "Gallery", to: "/gallery" },
-                { label: "Projects", to: "/projects" },
                 { label: "Services", to: "/services" },
                 { label: "Contact", to: "/#contact" },
               ].map((link) => (
@@ -1366,6 +1466,178 @@ function Footer() {
 export default function HomePage() {
   const { scrollYProgress } = useScroll();
 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    shoot_type: "",
+    date: "",
+    location: "",
+    message: "",
+  });
+
+  const [status, setStatus] = useState("idle");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Calculate tomorrow's date for min attribute
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
+    const day = String(tomorrow.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const minDate = getTomorrowDate();
+
+  const shootTypes = [
+    "Wedding Photography",
+    "Pre-Wedding Shoot",
+    "Portrait Session",
+    "Event Photography",
+    "Fashion Shoot",
+    "Travel Photography",
+    "Commercial Photography",
+    "Other",
+  ];
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const validateForm = () => {
+    const { name, email, phone, shoot_type, date, location, message } =
+      formData;
+
+    if (!name.trim()) {
+      return { valid: false, message: "Please enter your full name." };
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email)) {
+      return { valid: false, message: "Please enter a valid email address." };
+    }
+
+    if (!phone.trim()) {
+      return { valid: false, message: "Please enter your phone number." };
+    }
+
+    if (!shoot_type) {
+      return { valid: false, message: "Please select a shoot type." };
+    }
+
+    if (!date) {
+      return { valid: false, message: "Please select a preferred date." };
+    }
+
+    if (!location.trim()) {
+      return { valid: false, message: "Please enter the shoot location." };
+    }
+
+    if (!message.trim()) {
+      return { valid: false, message: "Please enter a message." };
+    }
+
+    // Check enquiry count for this email
+    const emailKey = `enquiry_count_${email.toLowerCase()}`;
+    const currentCount = parseInt(localStorage.getItem(emailKey) || "0");
+    if (currentCount >= 10) {
+      return {
+        valid: false,
+        message:
+          "You have reached the maximum limit of 10 enquiries. Please contact directly via WhatsApp.",
+      };
+    }
+
+    return { valid: true };
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const validation = validateForm();
+    if (!validation.valid) {
+      setStatus("error");
+      setStatusMessage(validation.message);
+      return;
+    }
+
+    if (
+      !import.meta.env.VITE_EMAILJS_SERVICE_ID ||
+      !import.meta.env.VITE_EMAILJS_TEMPLATE_ID ||
+      !import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    ) {
+      setStatus("error");
+      setStatusMessage(
+        "EmailJS configuration is missing. Please contact directly via WhatsApp.",
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatus("submitting");
+
+    try {
+      const result = await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          shoot_type: formData.shoot_type,
+          date: formData.date,
+          location: formData.location,
+          message: formData.message,
+        },
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+      );
+
+      console.log("EmailJS result:", result);
+
+      // Increment and save the enquiry count
+      const emailKey = `enquiry_count_${formData.email.toLowerCase()}`;
+      const currentCount = parseInt(localStorage.getItem(emailKey) || "0");
+      localStorage.setItem(emailKey, (currentCount + 1).toString());
+
+      setStatus("success");
+      setStatusMessage(
+        "Thank you! Your photography enquiry has been sent successfully. I will contact you shortly.",
+      );
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        shoot_type: "",
+        date: "",
+        location: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("EmailJS full error:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      setStatus("error");
+      setStatusMessage(
+        `Something went wrong. Please try again or contact me directly via WhatsApp. ${error.text || error.message || ""}`,
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getWhatsAppUrl = () => {
+    const phoneNumber = photographer.phone.replace(/[^0-9]/g, "");
+    const message = `Hello, I want to book a photography shoot.\n\nName: ${formData.name || ""}\nEmail: ${formData.email || ""}\nPhone: ${formData.phone || ""}\nShoot Type: ${formData.shoot_type || ""}\nPreferred Date: ${formData.date || ""}\nLocation: ${formData.location || ""}\nMessage: ${formData.message || ""}`;
+
+    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  };
+
   useEffect(() => {
     const target = sessionStorage.getItem("scroll-target");
     if (target) {
@@ -1424,13 +1696,23 @@ export default function HomePage() {
       <main className="relative z-20">
         <HeroSection />
         <AboutSection />
+        {/* <StoriesBehindTheShot /> */}
         <CapturedMomentsSection />
-        <FeaturedProjectsSection />
         <ServicesPreviewSection />
         <TestimonialsSection />
-        <InstagramFeedSection />
         <FAQSection />
-        <ContactSection />
+        <ContactSection
+          formData={formData}
+          setFormData={setFormData}
+          handleSubmit={handleSubmit}
+          status={status}
+          statusMessage={statusMessage}
+          isSubmitting={isSubmitting}
+          handleChange={handleChange}
+          shootTypes={shootTypes}
+          getWhatsAppUrl={getWhatsAppUrl}
+          minDate={minDate}
+        />
         <Footer />
       </main>
     </div>
