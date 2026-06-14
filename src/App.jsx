@@ -233,12 +233,13 @@ function IntroExperience({ onComplete }) {
     const video = videoRef.current;
     if (!video) return;
 
-    // Try to autoplay with sound, fallback to muted if blocked
+    // Try to autoplay with sound
     video.muted = false;
     video.play().catch((err) => {
-      console.log("Autoplay with sound blocked, falling back to muted:", err);
-      video.muted = true;
+      console.log("Autoplay with sound blocked initially:", err);
+      // Keep trying to unmute on user interaction
       setIsVideoMuted(true);
+      video.muted = true;
       video.play().catch(() => {});
     });
 
@@ -249,10 +250,25 @@ function IntroExperience({ onComplete }) {
       }
     };
 
+    const handleUserInteraction = () => {
+      if (video.muted) {
+        video.muted = false;
+        setIsVideoMuted(false);
+        video.play().catch(() => {});
+      }
+      // Remove listeners after first interaction
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
+    };
+
     video.addEventListener("timeupdate", handleTimeUpdate);
+    window.addEventListener("click", handleUserInteraction);
+    window.addEventListener("touchstart", handleUserInteraction);
 
     return () => {
       video.removeEventListener("timeupdate", handleTimeUpdate);
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
     };
   }, []);
 
@@ -302,11 +318,9 @@ function IntroExperience({ onComplete }) {
           <video
             ref={videoRef}
             src="https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781466800/akshay_pooja_mix_vertical_kmbven.mp4"
-            muted={isVideoMuted}
             playsInline
             preload="auto"
             loop
-            autoPlay
             className="absolute top-1/2 left-1/2 object-cover origin-center"
             style={{
               width: "100vh",
