@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Lightbox from "../components/Lightbox.jsx";
 import { photos } from "../data/portfolio";
 
@@ -10,14 +10,23 @@ const filters = [
 ];
 
 export default function GalleryPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialCategory = searchParams.get("category") || "All";
   const [activeFilter, setActiveFilter] = useState(
     filters.includes(initialCategory) ? initialCategory : "All",
   );
-  const [selectedIndex, setSelectedIndex] = useState(null);
   const [visibleCount, setVisibleCount] = useState(12);
   const sentinelRef = useRef(null);
+
+  // Keep selectedIndex in sync with searchParams
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  useEffect(() => {
+    const photoParam = searchParams.get("photo");
+    const newIndex = photoParam !== null ? parseInt(photoParam, 10) : null;
+    setSelectedIndex(newIndex);
+  }, [searchParams]);
 
   const filteredPhotos = useMemo(
     () =>
@@ -52,12 +61,38 @@ export default function GalleryPage() {
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
+    const newSearchParams = new URLSearchParams(searchParams);
     if (filter === "All") {
-      searchParams.delete("category");
+      newSearchParams.delete("category");
     } else {
-      searchParams.set("category", filter);
+      newSearchParams.set("category", filter);
     }
-    setSearchParams(searchParams, { replace: true });
+    newSearchParams.delete("photo");
+    navigate({ search: newSearchParams.toString() }, { replace: true });
+  };
+
+  const handlePhotoClick = (index) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("photo", index.toString());
+    navigate({ search: newSearchParams.toString() }); // Push new history entry
+  };
+
+  const handleLightboxClose = () => {
+    // Check if we came to this page with a photo param already (from a direct link)
+    // or if we added it by clicking (so back button is safe)
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("photo");
+      navigate({ search: newSearchParams.toString() }, { replace: true });
+    }
+  };
+
+  const handleLightboxChange = (newIndex) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("photo", newIndex.toString());
+    navigate({ search: newSearchParams.toString() }, { replace: true });
   };
 
   return (
@@ -109,7 +144,7 @@ export default function GalleryPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: (index % 8) * 0.05 }}
-              onClick={() => setSelectedIndex(index)}
+              onClick={() => handlePhotoClick(index)}
               className="group relative cursor-zoom-in overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:rounded-3xl break-inside-avoid inline-block w-full"
             >
               <img
@@ -117,11 +152,6 @@ export default function GalleryPage() {
                 alt={photo.title || "Gallery"}
                 loading="lazy"
                 className="w-full transition-all duration-700 group-hover:scale-105"
-                onLoad={(e) => {
-                  e.target.classList.remove("opacity-0");
-                  e.target.classList.add("opacity-100");
-                }}
-                style={{ opacity: 0, transition: "opacity 0.6s ease" }}
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </motion.div>
@@ -141,8 +171,8 @@ export default function GalleryPage() {
       <Lightbox
         items={visiblePhotos}
         index={selectedIndex}
-        onClose={() => setSelectedIndex(null)}
-        onChange={setSelectedIndex}
+        onClose={handleLightboxClose}
+        onChange={handleLightboxChange}
       />
     </motion.main>
   );

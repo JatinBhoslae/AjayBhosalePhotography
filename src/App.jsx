@@ -226,108 +226,32 @@ function CinematicBackground() {
 
 function IntroExperience({ onComplete }) {
   const [isEnding, setIsEnding] = useState(false);
-  const [isVideoMuted, setIsVideoMuted] = useState(false); // Start unmuted as requested
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [videoStarted, setVideoStarted] = useState(false);
-  const [userInteracted, setUserInteracted] = useState(false); // For autoplay compliance
+  const [isVideoMuted, setIsVideoMuted] = useState(false);
   const videoRef = useRef(null);
-  const safetyTimeoutRef = useRef(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const playVideo = () => {
-      console.log("Starting intro video...");
-      video
-        .play()
-        .then(() => {
-          console.log("Intro video playing successfully");
-          setVideoStarted(true);
-          // Start safety timeout ONLY after video actually starts playing
-          safetyTimeoutRef.current = window.setTimeout(() => {
-            console.log("Safety timeout: ending intro");
-            setIsEnding(true);
-          }, 15000);
-        })
-        .catch((err) => {
-          console.log("Autoplay blocked/failed, skipping intro:", err);
-          setIsEnding(true);
-        });
-    };
-
-    const handleCanPlayThrough = () => {
-      console.log("Video can play through");
-      setVideoLoaded(true);
-      // Only play if user has already interacted
-      if (userInteracted && !videoStarted) {
-        playVideo();
-      }
-    };
+    // Try to autoplay muted for better user experience
+    video.muted = true;
+    video.play().catch((err) => {
+      console.log("Autoplay blocked, waiting for user interaction:", err);
+    });
 
     const handleTimeUpdate = () => {
-      // Log current time for debugging
-      console.log("Video currentTime:", video.currentTime);
-      // Transition to home page when video reaches 12 seconds or near the end
-      if (
-        video.duration &&
-        (video.currentTime >= 12 || video.currentTime >= video.duration - 1)
-      ) {
-        console.log("Video ending, transitioning to home page");
+      // End after 15 seconds
+      if (video.currentTime >= 15) {
         setIsEnding(true);
       }
     };
 
-    const handleError = (e) => {
-      console.log("Video error, skipping intro:", e);
-      setIsEnding(true);
-    };
-
-    const handleEnded = () => {
-      console.log("Video ended naturally");
-      setIsEnding(true);
-    };
-
-    const handlePause = () => {
-      console.log("Video paused unexpectedly");
-      // Try to resume playback if we haven't ended yet
-      if (!isEnding && videoStarted) {
-        console.log("Attempting to resume video playback");
-        video.play().catch((err) => console.log("Resume failed:", err));
-      }
-    };
-
-    video.addEventListener("canplaythrough", handleCanPlayThrough);
     video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("error", handleError);
-    video.addEventListener("ended", handleEnded);
-    video.addEventListener("pause", handlePause);
-
-    // Try to play immediately if user has already interacted and video is loaded
-    if (userInteracted && video.readyState >= 4) {
-      console.log("Video already loaded, starting playback");
-      setVideoLoaded(true);
-      playVideo();
-    } else {
-      console.log("Waiting for user interaction...");
-    }
 
     return () => {
-      video.removeEventListener("canplaythrough", handleCanPlayThrough);
       video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("error", handleError);
-      video.removeEventListener("ended", handleEnded);
-      video.removeEventListener("pause", handlePause);
-      if (safetyTimeoutRef.current) {
-        window.clearTimeout(safetyTimeoutRef.current);
-      }
     };
-  }, [isEnding, videoStarted, userInteracted]);
-
-  const handleUserInteraction = () => {
-    console.log("User interacted, starting video...");
-    setUserInteracted(true);
-  };
+  }, []);
 
   useEffect(() => {
     if (!isEnding) {
@@ -342,7 +266,7 @@ function IntroExperience({ onComplete }) {
     return () => window.clearTimeout(timeout);
   }, [isEnding, onComplete]);
 
-  const handleSkip = () => {
+  const handleEnterExperience = () => {
     setIsEnding(true);
   };
 
@@ -374,102 +298,122 @@ function IntroExperience({ onComplete }) {
         >
           <video
             ref={videoRef}
-            src="/akshay pooja mix vertical.mp4"
+            src="https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781466800/akshay_pooja_mix_vertical_kmbven.mp4"
             muted={isVideoMuted}
             playsInline
             preload="auto"
-            loop={false}
+            loop
             className="absolute top-1/2 left-1/2 object-cover origin-center"
             style={{
-              width: "100vh", // Swap width/height for rotated video
+              width: "100vh",
               height: "100vw",
-              transform: "translate(-50%, -50%) rotate(-90deg)", // 90 degrees left rotation
+              transform: "translate(-50%, -50%) rotate(-90deg)",
             }}
           />
         </motion.div>
       </div>
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.2),rgba(0,0,0,0.72))]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.65),rgba(0,0,0,0.35),rgba(0,0,0,0.8))]" />
 
-      {/* Tap to start button (only visible before user interacts) */}
-      <AnimatePresence>
-        {!userInteracted && !isEnding && (
-          <motion.button
-            type="button"
-            onClick={handleUserInteraction}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 z-30 flex items-center justify-center text-center"
+      {/* Premium Content */}
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center sm:px-10">
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2, ease: [0.65, 0, 0.35, 1] }}
+          className="mb-8"
+        >
+          <img
+            src="/logo.jpg"
+            alt="Logo"
+            className="h-24 w-24 rounded-full border-2 border-amber-200/30 object-cover shadow-[0_0_40px_rgba(255,210,145,0.15)] sm:h-28 sm:w-28"
+          />
+        </motion.div>
+
+        {/* Name */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30, letterSpacing: "0.3em" }}
+          animate={{ opacity: 1, y: 0, letterSpacing: "0.15em" }}
+          transition={{ duration: 1.2, delay: 0.4, ease: [0.65, 0, 0.35, 1] }}
+          className="font-display text-4xl font-semibold text-white sm:text-5xl md:text-6xl"
+        >
+          {photographer.name.toUpperCase()}
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.7, ease: [0.65, 0, 0.35, 1] }}
+          className="mt-4 text-sm font-medium uppercase tracking-[0.5em] text-amber-200/70 sm:text-base"
+        >
+          Visual Storyteller
+        </motion.p>
+
+        {/* Tagline */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.9, ease: [0.65, 0, 0.35, 1] }}
+          className="mt-6 max-w-md text-lg text-white/70 sm:text-xl"
+        >
+          Capturing moments that become memories.
+        </motion.p>
+
+        {/* CTA Button */}
+        <motion.button
+          type="button"
+          onClick={handleEnterExperience}
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.2, ease: [0.65, 0, 0.35, 1] }}
+          whileHover={{
+            scale: 1.05,
+            boxShadow: "0 0 30px rgba(255,210,145,0.25)",
+          }}
+          whileTap={{ scale: 0.98 }}
+          className="mt-12 group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-amber-200/30 bg-gradient-to-r from-amber-200/10 via-white/5 to-amber-200/10 px-10 py-4 backdrop-blur-md transition-all duration-500"
+        >
+          {/* Animated background */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-amber-200/20 via-amber-200/5 to-amber-200/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            initial={{ x: "-100%" }}
+            whileHover={{ x: "100%" }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+
+          <span className="relative z-10 text-xs font-semibold uppercase tracking-[0.4em] text-amber-200">
+            Enter Experience
+          </span>
+          <motion.span
+            className="relative z-10 text-amber-200"
+            animate={{ x: [0, 4, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="rounded-full border border-white/30 bg-white/10 px-8 py-4 backdrop-blur-md">
-              <p className="text-lg font-medium text-white">Tap to Start</p>
-              <p className="text-xs text-white/70 mt-1">
-                Enjoy the show with sound!
-              </p>
-            </div>
-          </motion.button>
-        )}
-      </AnimatePresence>
+            →
+          </motion.span>
+        </motion.button>
+      </div>
 
+      {/* Sound Toggle */}
       <motion.button
         type="button"
         onClick={toggleVideoMute}
         initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: isEnding ? 0 : userInteracted ? 1 : 0, x: 0 }}
-        transition={{ delay: 1, duration: 0.8 }}
-        className="absolute bottom-8 left-8 z-20 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:bg-white/10 hover:text-white"
+        animate={{ opacity: isEnding ? 0 : 1, x: 0 }}
+        transition={{ delay: 1.5, duration: 0.8 }}
+        className="absolute bottom-8 left-8 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-amber-200/40 hover:bg-white/10 hover:text-white"
       >
-        {isVideoMuted ? "Play with Sound" : "Mute"}
+        {isVideoMuted ? "🔇 Unmute" : "🔊 Mute"}
       </motion.button>
 
-      <motion.button
-        type="button"
-        onClick={handleSkip}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: isEnding ? 0 : userInteracted ? 1 : 0, x: 0 }}
-        transition={{ delay: 1, duration: 0.8 }}
-        className="absolute bottom-8 right-8 z-20 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:bg-white/10 hover:text-white"
-      >
-        Skip Intro
-      </motion.button>
-
+      {/* Ending Overlay */}
       <motion.div
         className="absolute inset-0 bg-black"
         initial={{ opacity: 0 }}
         animate={{ opacity: isEnding ? 1 : 0 }}
         transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
       />
-      <div className="absolute bottom-8 left-0 right-0 z-10 text-center sm:bottom-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: isEnding ? 0 : 1, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.15 }}
-          className="mb-4 flex justify-center"
-        >
-          <img
-            src="/logo.jpg"
-            alt="Logo"
-            className="h-16 w-16 rounded-full border border-white/20 object-cover shadow-2xl sm:h-20 sm:w-20"
-          />
-        </motion.div>
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: isEnding ? 0 : 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.25 }}
-          className="font-display text-3xl text-white sm:text-4xl"
-        >
-          {photographer.name}
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: isEnding ? 0 : 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.4 }}
-          className="mt-2 text-xs uppercase tracking-[0.45em] text-white/70"
-        >
-          Visual Storyteller
-        </motion.p>
-      </div>
     </motion.div>
   );
 }
