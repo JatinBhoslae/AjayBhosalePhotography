@@ -84,7 +84,11 @@ export default function Lightbox({ items, index, onClose, onChange }) {
           <button
             type="button"
             className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 p-3 text-white transition hover:bg-white/15"
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
             aria-label="Go back"
           >
             <IoArrowBack size={20} />

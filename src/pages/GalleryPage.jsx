@@ -78,15 +78,18 @@ export default function GalleryPage() {
   };
 
   const handleLightboxClose = () => {
-    // Check if we came to this page with a photo param already (from a direct link)
-    // or if we added it by clicking (so back button is safe)
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.delete("photo");
-      navigate({ search: newSearchParams.toString() }, { replace: true });
-    }
+    setSelectedIndex(null);
+
+    const newSearchParams = new URLSearchParams(window.location.search);
+    newSearchParams.delete("photo");
+
+    navigate(
+      {
+        pathname: "/gallery",
+        search: newSearchParams.toString(),
+      },
+      { replace: true },
+    );
   };
 
   const handleLightboxChange = (newIndex) => {
@@ -169,7 +172,7 @@ export default function GalleryPage() {
       </div>
 
       <Lightbox
-        items={visiblePhotos}
+        items={filteredPhotos}
         index={selectedIndex}
         onClose={handleLightboxClose}
         onChange={handleLightboxChange}

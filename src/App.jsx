@@ -233,10 +233,13 @@ function IntroExperience({ onComplete }) {
     const video = videoRef.current;
     if (!video) return;
 
-    // Try to autoplay muted for better user experience
-    video.muted = true;
+    // Try to autoplay with sound, fallback to muted if blocked
+    video.muted = false;
     video.play().catch((err) => {
-      console.log("Autoplay blocked, waiting for user interaction:", err);
+      console.log("Autoplay with sound blocked, falling back to muted:", err);
+      video.muted = true;
+      setIsVideoMuted(true);
+      video.play().catch(() => {});
     });
 
     const handleTimeUpdate = () => {
@@ -303,6 +306,7 @@ function IntroExperience({ onComplete }) {
             playsInline
             preload="auto"
             loop
+            autoPlay
             className="absolute top-1/2 left-1/2 object-cover origin-center"
             style={{
               width: "100vh",
