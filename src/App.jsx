@@ -70,6 +70,7 @@ class AppErrorBoundary extends Component {
 import GalleryPage from "./pages/GalleryPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import ServicesPage from "./pages/ServicesPage.jsx";
+import VideosPage from "./pages/VideosPage.jsx";
 
 function NotFoundPage() {
   return (
@@ -521,6 +522,17 @@ function Navigation() {
 
   const handleAnchor = (section) => {
     setIsMobileMenuOpen(false);
+
+    if (section === "captured") {
+      navigate("/gallery");
+      return;
+    }
+
+    if (section === "videos") {
+      navigate("/videos");
+      return;
+    }
+
     if (location.pathname !== "/") {
       sessionStorage.setItem("scroll-target", section);
       navigate("/");
@@ -535,7 +547,8 @@ function Navigation() {
   const navItems = [
     { label: "Home", section: "home" },
     { label: "About", section: "about" },
-    { label: "Gallery", section: "captured" },
+    { label: "Photos", section: "captured" },
+    { label: "Videos", section: "videos" },
     { label: "Services", section: "services" },
     { label: "Contact", section: "contact" },
   ];
@@ -591,6 +604,7 @@ function Navigation() {
           <nav className="hidden items-center gap-2 md:flex">
             {navItems.map((item) => {
               const isGallery = item.section === "captured";
+              const isVideos = item.section === "videos";
               const isContact = item.section === "contact";
               let active = false;
               if (isContact) {
@@ -605,6 +619,8 @@ function Navigation() {
                 }
               } else if (isGallery) {
                 active = location.pathname === "/gallery";
+              } else if (isVideos) {
+                active = location.pathname === "/videos";
               } else {
                 active =
                   location.pathname === "/" && activeSection === item.section;
@@ -747,6 +763,7 @@ function Navigation() {
                 <div className="flex flex-col gap-1">
                   {navItems.map((item, index) => {
                     const isGallery = item.section === "captured";
+                    const isVideos = item.section === "videos";
                     const isContact = item.section === "contact";
                     let active = false;
                     if (isContact) {
@@ -761,6 +778,8 @@ function Navigation() {
                       }
                     } else if (isGallery) {
                       active = location.pathname === "/gallery";
+                    } else if (isVideos) {
+                      active = location.pathname === "/videos";
                     } else {
                       active =
                         location.pathname === "/" &&
@@ -1073,6 +1092,7 @@ function App() {
                 <Routes location={location}>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/gallery" element={<GalleryPage />} />
+                  <Route path="/videos" element={<VideosPage />} />
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
