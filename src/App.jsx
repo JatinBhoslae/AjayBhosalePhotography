@@ -415,13 +415,6 @@ function IntroExperience({ onComplete }) {
                     🔊
                   </motion.span>
                 </motion.button>
-                
-                <button
-                  onClick={handleSkipIntro}
-                  className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40 transition hover:text-white/80"
-                >
-                  Skip to Website
-                </button>
               </motion.div>
             </div>
           </motion.div>
@@ -441,6 +434,24 @@ function IntroExperience({ onComplete }) {
             className="absolute bottom-8 left-8 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-amber-200/40 hover:bg-white/10 hover:text-white"
           >
             {isVideoMuted ? "🔇 Unmute" : "🔊 Mute"}
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Persistent Skip Button */}
+      <AnimatePresence>
+        {!isEnding && (
+          <motion.button
+            type="button"
+            onClick={handleSkipIntro}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: hasStarted ? 0 : 1.5, duration: 0.8 }}
+            className="absolute bottom-8 right-8 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-[10px] sm:text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-amber-200/40 hover:bg-white/10 hover:text-white"
+          >
+            Skip Intro
+            <span className="text-amber-200">→</span>
           </motion.button>
         )}
       </AnimatePresence>
