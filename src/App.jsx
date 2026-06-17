@@ -231,51 +231,30 @@ function CinematicBackground() {
 
 function IntroExperience({ onComplete }) {
   const [isEnding, setIsEnding] = useState(false);
-  const [isVideoMuted, setIsVideoMuted] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(true);
+  const [hasStarted, setHasStarted] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Try to autoplay with sound
-    video.muted = false;
-    video.play().catch((err) => {
-      console.log("Autoplay with sound blocked initially:", err);
-      // Keep trying to unmute on user interaction
-      setIsVideoMuted(true);
+    if (!hasStarted) {
+      // Start muted as a background preview only initially
       video.muted = true;
       video.play().catch(() => {});
-    });
+    }
 
     const handleTimeUpdate = () => {
-      // End after 15 seconds
-      if (video.currentTime >= 15) {
+      // End after 15 seconds if it has started
+      if (hasStarted && video.currentTime >= 15) {
         setIsEnding(true);
       }
     };
 
-    const handleUserInteraction = () => {
-      if (video.muted) {
-        video.muted = false;
-        setIsVideoMuted(false);
-        video.play().catch(() => {});
-      }
-      // Remove listeners after first interaction
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("touchstart", handleUserInteraction);
-    };
-
     video.addEventListener("timeupdate", handleTimeUpdate);
-    window.addEventListener("click", handleUserInteraction);
-    window.addEventListener("touchstart", handleUserInteraction);
-
-    return () => {
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("touchstart", handleUserInteraction);
-    };
-  }, []);
+    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
+  }, [hasStarted]);
 
   useEffect(() => {
     if (!isEnding) {
@@ -290,7 +269,17 @@ function IntroExperience({ onComplete }) {
     return () => window.clearTimeout(timeout);
   }, [isEnding, onComplete]);
 
-  const handleEnterExperience = () => {
+  const handleStartIntro = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.muted = false;
+      setIsVideoMuted(false);
+      videoRef.current.play().catch(() => {});
+    }
+    setHasStarted(true);
+  };
+
+  const handleSkipIntro = () => {
     setIsEnding(true);
   };
 
@@ -313,10 +302,10 @@ function IntroExperience({ onComplete }) {
           className="relative h-full w-full"
           initial={{ scale: 1.2 }}
           animate={{
-            scale: isEnding ? 1.3 : 1.1,
+            scale: isEnding ? 1.3 : (hasStarted ? 1 : 1.1),
             filter: isEnding
               ? "brightness(0.6) blur(10px)"
-              : "brightness(0.8) blur(0px)",
+              : (hasStarted ? "brightness(1) blur(0px)" : "brightness(0.8) blur(0px)"),
           }}
           transition={{ duration: 2.5, ease: "easeOut" }}
         >
@@ -325,7 +314,7 @@ function IntroExperience({ onComplete }) {
             src="https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781466800/akshay_pooja_mix_vertical_kmbven.mp4"
             playsInline
             preload="auto"
-            loop
+            loop={!hasStarted}
             className="absolute top-1/2 left-1/2 object-cover origin-center"
             style={{
               width: "100vh",
@@ -335,104 +324,130 @@ function IntroExperience({ onComplete }) {
           />
         </motion.div>
       </div>
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.65),rgba(0,0,0,0.35),rgba(0,0,0,0.8))]" />
 
-      {/* Premium Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center sm:px-10">
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.65, 0, 0.35, 1] }}
-          className="mb-8"
-        >
-          <img
-            src="/logo.jpg"
-            alt="Logo"
-            className="h-24 w-24 rounded-full border-2 border-amber-200/30 object-cover shadow-[0_0_40px_rgba(255,210,145,0.15)] sm:h-28 sm:w-28"
-          />
-        </motion.div>
-
-        {/* Name */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30, letterSpacing: "0.3em" }}
-          animate={{ opacity: 1, y: 0, letterSpacing: "0.15em" }}
-          transition={{ duration: 1.2, delay: 0.4, ease: [0.65, 0, 0.35, 1] }}
-          className="font-display text-4xl font-semibold text-white sm:text-5xl md:text-6xl"
-        >
-          {photographer.name.toUpperCase()}
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.7, ease: [0.65, 0, 0.35, 1] }}
-          className="mt-4 text-sm font-medium uppercase tracking-[0.5em] text-amber-200/70 sm:text-base"
-        >
-          Visual Storyteller
-        </motion.p>
-
-        {/* Tagline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.9, ease: [0.65, 0, 0.35, 1] }}
-          className="mt-6 max-w-md text-lg text-white/70 sm:text-xl"
-        >
-          Capturing moments that become memories.
-        </motion.p>
-
-        {/* CTA Button */}
-        <motion.button
-          type="button"
-          onClick={handleEnterExperience}
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.2, ease: [0.65, 0, 0.35, 1] }}
-          whileHover={{
-            scale: 1.05,
-            boxShadow: "0 0 30px rgba(255,210,145,0.25)",
-          }}
-          whileTap={{ scale: 0.98 }}
-          className="mt-12 group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-amber-200/30 bg-gradient-to-r from-amber-200/10 via-white/5 to-amber-200/10 px-10 py-4 backdrop-blur-md transition-all duration-500"
-        >
-          {/* Animated background */}
+      <AnimatePresence>
+        {!hasStarted && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-amber-200/20 via-amber-200/5 to-amber-200/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-            initial={{ x: "-100%" }}
-            whileHover={{ x: "100%" }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-          />
-
-          <span className="relative z-10 text-xs font-semibold uppercase tracking-[0.4em] text-amber-200">
-            Enter Experience
-          </span>
-          <motion.span
-            className="relative z-10 text-amber-200"
-            animate={{ x: [0, 4, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center"
           >
-            →
-          </motion.span>
-        </motion.button>
-      </div>
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.65),rgba(0,0,0,0.35),rgba(0,0,0,0.8))]" />
+
+            <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center sm:px-10">
+              {/* Logo */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.2, ease: [0.65, 0, 0.35, 1] }}
+                className="mb-8"
+              >
+                <img
+                  src="/logo.jpg"
+                  alt="Logo"
+                  className="h-24 w-24 rounded-full border-2 border-amber-200/30 object-cover shadow-[0_0_40px_rgba(255,210,145,0.15)] sm:h-28 sm:w-28"
+                />
+              </motion.div>
+
+              {/* Name */}
+              <motion.h1
+                initial={{ opacity: 0, y: 30, letterSpacing: "0.3em" }}
+                animate={{ opacity: 1, y: 0, letterSpacing: "0.15em" }}
+                transition={{ duration: 1.2, delay: 0.4, ease: [0.65, 0, 0.35, 1] }}
+                className="font-display text-4xl font-semibold text-white sm:text-5xl md:text-6xl"
+              >
+                {photographer.name.toUpperCase()}
+              </motion.h1>
+
+              {/* Subtitle */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.7, ease: [0.65, 0, 0.35, 1] }}
+                className="mt-4 text-sm font-medium uppercase tracking-[0.5em] text-amber-200/70 sm:text-base"
+              >
+                Visual Storyteller
+              </motion.p>
+
+              {/* Tagline */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.9, ease: [0.65, 0, 0.35, 1] }}
+                className="mt-6 max-w-md text-lg text-white/70 sm:text-xl"
+              >
+                Capturing moments that become memories.
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 1.2, ease: [0.65, 0, 0.35, 1] }}
+                className="mt-12 flex flex-col items-center gap-6"
+              >
+                <motion.button
+                  type="button"
+                  onClick={handleStartIntro}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 0 30px rgba(255,210,145,0.25)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-amber-200/30 bg-gradient-to-r from-amber-200/10 via-white/5 to-amber-200/10 px-10 py-4 backdrop-blur-md transition-all duration-500"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-amber-200/20 via-amber-200/5 to-amber-200/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  />
+
+                  <span className="relative z-10 text-xs font-semibold uppercase tracking-[0.4em] text-amber-200">
+                    Play Intro
+                  </span>
+                  <motion.span
+                    className="relative z-10 text-amber-200"
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    🔊
+                  </motion.span>
+                </motion.button>
+                
+                <button
+                  onClick={handleSkipIntro}
+                  className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40 transition hover:text-white/80"
+                >
+                  Skip to Website
+                </button>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Sound Toggle */}
-      <motion.button
-        type="button"
-        onClick={toggleVideoMute}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: isEnding ? 0 : 1, x: 0 }}
-        transition={{ delay: 1.5, duration: 0.8 }}
-        className="absolute bottom-8 left-8 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-amber-200/40 hover:bg-white/10 hover:text-white"
-      >
-        {isVideoMuted ? "🔇 Unmute" : "🔊 Mute"}
-      </motion.button>
+      <AnimatePresence>
+        {hasStarted && (
+          <motion.button
+            type="button"
+            onClick={toggleVideoMute}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: isEnding ? 0 : 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute bottom-8 left-8 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-xs font-medium uppercase tracking-[0.3em] text-white/80 backdrop-blur-md transition hover:border-amber-200/40 hover:bg-white/10 hover:text-white"
+          >
+            {isVideoMuted ? "🔇 Unmute" : "🔊 Mute"}
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Ending Overlay */}
       <motion.div
-        className="absolute inset-0 bg-black"
+        className="absolute inset-0 bg-black pointer-events-none z-30"
         initial={{ opacity: 0 }}
         animate={{ opacity: isEnding ? 1 : 0 }}
         transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
