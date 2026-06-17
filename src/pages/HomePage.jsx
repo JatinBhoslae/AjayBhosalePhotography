@@ -1,7 +1,8 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useContext } from "react";
+import { VideoContext } from "../App";
 import { Link, useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import {
@@ -24,6 +25,12 @@ import {
   IoCheckmarkCircleOutline,
   IoAlertCircleOutline,
   IoLocationOutline,
+  IoPlayOutline,
+  IoPauseOutline,
+  IoExpandOutline,
+  IoContractOutline,
+  IoEllipsisVertical,
+  IoDownloadOutline,
 } from "react-icons/io5";
 import { HeroCameraCanvas } from "../components/CameraScene.jsx";
 import Reveal from "../components/Reveal.jsx";
@@ -545,6 +552,7 @@ function CapturedMomentsSection() {
           <Reveal delay={0.1}>
             <Link
               to="/gallery"
+              onClick={() => sessionStorage.setItem("scroll-target", "captured")}
               className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.25em] text-white transition hover:bg-white/10 sm:text-xs"
             >
               View Full Gallery
@@ -569,6 +577,326 @@ function CapturedMomentsSection() {
                 className="blur-placeholder h-full w-full object-cover transition-transform duration-700 hover:scale-110"
                 onLoad={(e) => e.target.classList.add("loaded")}
               />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const videos = [
+  {
+    id: 1,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781462754/akshay_pooja_mix_vertical_v3gtwj.mp4",
+    title: "Akshay & Pooja Wedding",
+  },
+  {
+    id: 2,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781462735/Sequence_01_1-1_fqe1fx.mp4",
+    title: "Prewedding Sequence",
+  },
+  {
+    id: 3,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781461839/shoeab_and_aaisha_p5y2qc.mp4",
+    title: "Shoeb & Aaisha",
+  },
+  {
+    id: 4,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781461833/sk_prewedding_satara_02_vr_el5lsz.mp4",
+    title: "SK Prewedding Satara",
+  },
+  {
+    id: 5,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781461832/piyush_haldi_cinematic_fhczmn.mp4",
+    title: "Piyush Haldi Cinematic",
+  },
+  {
+    id: 6,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781461816/akshay_haldi_blqcvc.mp4",
+    title: "Akshay Haldi",
+  },
+  {
+    id: 7,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781620008/sachin_03_western_pemht1.mp4",
+    title: "Sachin Western",
+  },
+];
+
+function VideosSection() {
+  const { setVideoActive } = useContext(VideoContext);
+  const videoRefs = useRef([]);
+  const [activeVideosCount, setActiveVideosCount] = useState(0);
+  const [playingVideos, setPlayingVideos] = useState(videos.map(() => false));
+  const [videoProgress, setVideoProgress] = useState(videos.map(() => 0));
+  const [videoDuration, setVideoDuration] = useState(videos.map(() => 0));
+  const [fullscreenIndex, setFullscreenIndex] = useState(null);
+  const [menuOpenIndex, setMenuOpenIndex] = useState(null);
+  const containerRefs = useRef([]);
+
+  const checkActiveVideos = () => {
+    let count = 0;
+    videoRefs.current.forEach((video) => {
+      if (video && !video.muted && !video.paused) {
+        count++;
+      }
+    });
+    setActiveVideosCount(count);
+    setVideoActive(count > 0);
+  };
+
+  const handleVideoPlay = (index) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      video.muted = false;
+      setPlayingVideos((prev) => {
+        const newPlaying = [...prev];
+        newPlaying[index] = true;
+        return newPlaying;
+      });
+      checkActiveVideos();
+    }
+  };
+
+  const handleVideoPause = (index) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      video.muted = true;
+      setPlayingVideos((prev) => {
+        const newPlaying = [...prev];
+        newPlaying[index] = false;
+        return newPlaying;
+      });
+      checkActiveVideos();
+    }
+  };
+
+  const handleTimeUpdate = (index) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      setVideoProgress((prev) => {
+        const newProgress = [...prev];
+        newProgress[index] = video.currentTime;
+        return newProgress;
+      });
+    }
+  };
+
+  const handleLoadedMetadata = (index) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      setVideoDuration((prev) => {
+        const newDuration = [...prev];
+        newDuration[index] = video.duration;
+        return newDuration;
+      });
+    }
+  };
+
+  const handleSeek = (index, e) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      video.currentTime = Number(e.target.value);
+      setVideoProgress((prev) => {
+        const newProgress = [...prev];
+        newProgress[index] = Number(e.target.value);
+        return newProgress;
+      });
+    }
+  };
+
+  const togglePlay = (index) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    }
+  };
+
+  const toggleFullscreen = (index) => {
+    const container = containerRefs.current[index];
+    if (!container) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      setFullscreenIndex(null);
+    } else {
+      container.requestFullscreen().then(() => setFullscreenIndex(index)).catch(() => {});
+    }
+  };
+
+  const handleDownload = (url, title) => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = title || 'video';
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setMenuOpenIndex(null);
+  };
+
+  const handlePiP = async (index) => {
+    const video = videoRefs.current[index];
+    if (video && document.pictureInPictureEnabled) {
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else {
+          await video.requestPictureInPicture();
+        }
+      } catch (e) { console.log('PiP error:', e); }
+    }
+    setMenuOpenIndex(null);
+  };
+
+  useEffect(() => {
+    const handleFSChange = () => {
+      if (!document.fullscreenElement) setFullscreenIndex(null);
+    };
+    document.addEventListener('fullscreenchange', handleFSChange);
+    return () => document.removeEventListener('fullscreenchange', handleFSChange);
+  }, []);
+
+  const formatTime = (seconds) => {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <section id="videos" className="py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <Reveal>
+            <p className="text-[10px] uppercase tracking-[0.45em] text-amber-200/70 sm:text-xs">
+              Cinematography
+            </p>
+            <h2 className="mt-4 font-display text-4xl leading-tight text-white sm:text-5xl md:text-6xl">
+              Motion stories.
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <Link
+              to="/videos"
+              onClick={() => sessionStorage.setItem("scroll-target", "videos")}
+              className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.25em] text-white transition hover:bg-white/10 sm:text-xs"
+            >
+              View All Videos
+              <IoArrowForward />
+            </Link>
+          </Reveal>
+        </div>
+
+        <div className="mt-16 grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {videos.map((video, index) => (
+            <Reveal
+              key={video.id}
+              delay={index * 0.05}
+              className="aspect-video col-span-2 md:col-span-2 lg:col-span-2"
+            >
+              <div
+                ref={(el) => (containerRefs.current[index] = el)}
+                className="group relative w-full h-full overflow-hidden rounded-2xl border border-white/10 bg-black sm:rounded-3xl"
+              >
+              <div className="w-full h-full flex items-center justify-center">
+                <video
+                  ref={(el) => (videoRefs.current[index] = el)}
+                  src={video.url}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className={index < 4 ? "object-cover" : "w-full h-full object-contain"}
+                  style={index < 4 ? { width: "56.25%", aspectRatio: "16 / 9", transform: "rotate(-90deg)" } : {}}
+                  onPlay={() => handleVideoPlay(index)}
+                  onPause={() => handleVideoPause(index)}
+                  onTimeUpdate={() => handleTimeUpdate(index)}
+                  onLoadedMetadata={() => handleLoadedMetadata(index)}
+                  onVolumeChange={checkActiveVideos}
+                />
+              </div>
+
+              {/* Custom play/pause overlay */}
+              <div
+                className="video-controls-overlay"
+                onClick={() => togglePlay(index)}
+              >
+                <button
+                  type="button"
+                  className="video-play-btn"
+                  aria-label={playingVideos[index] ? "Pause video" : "Play video"}
+                >
+                  {playingVideos[index] ? (
+                    <IoPauseOutline size={28} />
+                  ) : (
+                    <IoPlayOutline size={28} />
+                  )}
+                </button>
+              </div>
+
+              {/* Bottom control bar */}
+              <div className="video-bottom-bar">
+                <button
+                  type="button"
+                  className="video-bar-btn"
+                  onClick={(e) => { e.stopPropagation(); togglePlay(index); }}
+                  aria-label={playingVideos[index] ? "Pause" : "Play"}
+                >
+                  {playingVideos[index] ? <IoPauseOutline size={16} /> : <IoPlayOutline size={16} />}
+                </button>
+
+                <span className="video-bar-time">
+                  {formatTime(videoProgress[index])}
+                </span>
+
+                <div className="video-bar-progress">
+                  <div
+                    className="video-bar-progress-fill"
+                    style={{ width: videoDuration[index] ? `${(videoProgress[index] / videoDuration[index]) * 100}%` : '0%' }}
+                  />
+                </div>
+
+                <span className="video-bar-time">
+                  {formatTime(videoDuration[index])}
+                </span>
+
+                <button
+                  type="button"
+                  className="video-bar-btn"
+                  onClick={(e) => { e.stopPropagation(); toggleFullscreen(index); }}
+                  aria-label={fullscreenIndex === index ? "Exit fullscreen" : "Fullscreen"}
+                >
+                  {fullscreenIndex === index ? <IoContractOutline size={16} /> : <IoExpandOutline size={16} />}
+                </button>
+
+                <div className="video-bar-menu-wrap">
+                  <button
+                    type="button"
+                    className="video-bar-btn"
+                    onClick={(e) => { e.stopPropagation(); setMenuOpenIndex(menuOpenIndex === index ? null : index); }}
+                    aria-label="More options"
+                  >
+                    <IoEllipsisVertical size={16} />
+                  </button>
+                  {menuOpenIndex === index && (
+                    <div className="video-bar-dropdown">
+                      <button type="button" onClick={(e) => { e.stopPropagation(); handleDownload(video.url, video.title); }}>
+                        <IoDownloadOutline size={14} /> Download
+                      </button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); handlePiP(index); }}>
+                        <IoExpandOutline size={14} /> Picture-in-Picture
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+              </div>
             </Reveal>
           ))}
         </div>
@@ -705,6 +1033,7 @@ function ServicesPreviewSection() {
           <Reveal delay={0.1}>
             <Link
               to="/services"
+              onClick={() => sessionStorage.setItem("scroll-target", "services")}
               className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.25em] text-white transition hover:bg-white/10 sm:text-xs"
             >
               View All Services
@@ -1698,6 +2027,7 @@ export default function HomePage() {
         <AboutSection />
         {/* <StoriesBehindTheShot /> */}
         <CapturedMomentsSection />
+        <VideosSection />
         <ServicesPreviewSection />
         <TestimonialsSection />
         <FAQSection />

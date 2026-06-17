@@ -4,7 +4,7 @@ import {
   useScroll,
   useMotionValueEvent,
 } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   IoArrowUp,
   IoMenuOutline,
@@ -94,18 +94,22 @@ function NotFoundPage() {
   );
 }
 
-function BackgroundMusic({ isVisible }) {
+function BackgroundMusic({ isVisible, videoIsActive }) {
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef(null);
 
   useEffect(() => {
-    if (isVisible && audioRef.current) {
-      audioRef.current.volume = 0.25;
-      audioRef.current.play().catch((err) => {
-        console.log("Autoplay blocked or audio error:", err);
-      });
+    if (audioRef.current) {
+      if (isVisible && !videoIsActive) {
+        audioRef.current.volume = 0.25;
+        audioRef.current.play().catch((err) => {
+          console.log("Autoplay blocked or audio error:", err);
+        });
+      } else if (videoIsActive) {
+        audioRef.current.pause();
+      }
     }
-  }, [isVisible]);
+  }, [isVisible, videoIsActive]);
 
   const toggleMute = () => {
     if (audioRef.current) {
@@ -522,16 +526,6 @@ function Navigation() {
 
   const handleAnchor = (section) => {
     setIsMobileMenuOpen(false);
-
-    if (section === "captured") {
-      navigate("/gallery");
-      return;
-    }
-
-    if (section === "videos") {
-      navigate("/videos");
-      return;
-    }
 
     if (location.pathname !== "/") {
       sessionStorage.setItem("scroll-target", section);
@@ -1000,12 +994,16 @@ function CustomCursor() {
   );
 }
 
+// Create a context for video state
+const VideoContext = createContext(null);
+
 function App() {
   const location = useLocation();
   // Intro plays only once per session — skip on refresh
   const [introComplete, setIntroComplete] = useState(
     () => sessionStorage.getItem("introPlayed") === "true",
   );
+  const [videoIsActive, setVideoIsActive] = useState(false);
 
   useLenis();
 
@@ -1014,95 +1012,105 @@ function App() {
     setIntroComplete(true);
   };
 
+  const setVideoActive = (active) => {
+    setVideoIsActive(active);
+  };
+
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
-      <AppErrorBoundary>
-        <CustomCursor />
-        <ScrollProgressBar />
-        <ScrollToTop />
-        <CinematicBackground />
-        <ScrollToTopButton />
-        <BackgroundMusic isVisible={introComplete} />
-        <WhatsAppButton isVisible={introComplete} />
-        <div className="relative z-10">
-          {introComplete && <Navigation />}
-          <AnimatePresence mode="wait">
-            {!introComplete && (
-              <IntroExperience key="intro" onComplete={handleIntroComplete} />
-            )}
-          </AnimatePresence>
-          <AnimatePresence mode="wait">
-            {introComplete && (
-              <motion.div
-                key={location.pathname}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={{
-                  hidden: {
-                    opacity: 0,
-                    clipPath: "inset(0 0 0 0)",
-                    filter: "brightness(1.6) blur(6px)",
-                  },
-                  visible: {
-                    opacity: 1,
-                    clipPath: "inset(0 0 0 0)",
-                    filter: "brightness(1) blur(0px)",
-                    transition: {
-                      duration: 0.7,
-                      ease: [0.65, 0, 0.35, 1],
-                    },
-                  },
-                  exit: {
-                    opacity: 0,
-                    filter: "brightness(0.6) blur(4px)",
-                    transition: {
-                      duration: 0.35,
-                      ease: [0.65, 0, 0.35, 1],
-                    },
-                  },
-                }}
-              >
-                {/* Cinematic wipe overlay */}
+    <VideoContext.Provider value={{ videoIsActive, setVideoActive }}>
+      <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
+        <AppErrorBoundary>
+          <CustomCursor />
+          <ScrollProgressBar />
+          <ScrollToTop />
+          <CinematicBackground />
+          <ScrollToTopButton />
+          <BackgroundMusic
+            isVisible={introComplete}
+            videoIsActive={videoIsActive}
+          />
+          <WhatsAppButton isVisible={introComplete} />
+          <div className="relative z-10">
+            {introComplete && <Navigation />}
+            <AnimatePresence mode="wait">
+              {!introComplete && (
+                <IntroExperience key="intro" onComplete={handleIntroComplete} />
+              )}
+            </AnimatePresence>
+            <AnimatePresence mode="wait">
+              {introComplete && (
                 <motion.div
-                  className="pointer-events-none fixed inset-0 z-[200]"
-                  initial={{ scaleX: 0, transformOrigin: "left" }}
-                  animate={{ scaleX: [0, 1, 0] }}
-                  transition={{
-                    duration: 0.8,
-                    times: [0, 0.45, 1],
-                    ease: [0.65, 0, 0.35, 1],
+                  key={location.pathname}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={{
+                    hidden: {
+                      opacity: 0,
+                      clipPath: "inset(0 0 0 0)",
+                      filter: "brightness(1.6) blur(6px)",
+                    },
+                    visible: {
+                      opacity: 1,
+                      clipPath: "inset(0 0 0 0)",
+                      filter: "brightness(1) blur(0px)",
+                      transition: {
+                        duration: 0.7,
+                        ease: [0.65, 0, 0.35, 1],
+                      },
+                    },
+                    exit: {
+                      opacity: 0,
+                      filter: "brightness(0.6) blur(4px)",
+                      transition: {
+                        duration: 0.35,
+                        ease: [0.65, 0, 0.35, 1],
+                      },
+                    },
                   }}
                 >
-                  <div className="h-full w-full bg-gradient-to-r from-black via-amber-950/30 to-black" />
+                  {/* Cinematic wipe overlay */}
+                  <motion.div
+                    className="pointer-events-none fixed inset-0 z-[200]"
+                    initial={{ scaleX: 0, transformOrigin: "left" }}
+                    animate={{ scaleX: [0, 1, 0] }}
+                    transition={{
+                      duration: 0.8,
+                      times: [0, 0.45, 1],
+                      ease: [0.65, 0, 0.35, 1],
+                    }}
+                  >
+                    <div className="h-full w-full bg-gradient-to-r from-black via-amber-950/30 to-black" />
+                  </motion.div>
+
+                  {/* Film grain flash */}
+                  <motion.div
+                    className="pointer-events-none fixed inset-0 z-[199]"
+                    initial={{ opacity: 0.35 }}
+                    animate={{ opacity: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    style={{
+                      background:
+                        "radial-gradient(circle at center, rgba(255,210,145,0.08), transparent 70%)",
+                    }}
+                  />
+
+                  <Routes location={location}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/gallery" element={<GalleryPage />} />
+                    <Route path="/videos" element={<VideosPage />} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
                 </motion.div>
-
-                {/* Film grain flash */}
-                <motion.div
-                  className="pointer-events-none fixed inset-0 z-[199]"
-                  initial={{ opacity: 0.35 }}
-                  animate={{ opacity: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  style={{
-                    background:
-                      "radial-gradient(circle at center, rgba(255,210,145,0.08), transparent 70%)",
-                  }}
-                />
-
-                <Routes location={location}>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/gallery" element={<GalleryPage />} />
-                  <Route path="/videos" element={<VideosPage />} />
-                  <Route path="/services" element={<ServicesPage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </AppErrorBoundary>
-    </div>
+              )}
+            </AnimatePresence>
+          </div>
+        </AppErrorBoundary>
+      </div>
+    </VideoContext.Provider>
   );
 }
 
+export { VideoContext };
 export default App;
