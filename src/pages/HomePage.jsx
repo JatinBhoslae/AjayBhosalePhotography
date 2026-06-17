@@ -621,6 +621,11 @@ const videos = [
     url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781620008/sachin_03_western_pemht1.mp4",
     title: "Sachin Western",
   },
+  {
+    id: 8,
+    url: "https://res.cloudinary.com/dd4dobz2c/video/upload/q_auto/f_auto/v1781716384/WhatsApp_Video_2026-06-16_at_20.11.53_1_ntjrme.mp4",
+    title: "Wedding Highlights",
+  },
 ];
 
 function VideosSection() {
