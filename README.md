@@ -1,16 +1,88 @@
-# React + Vite
+# Ajay Bhosale Photography
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, immersive, and cinematic photography portfolio website built with React, Vite, and Tailwind CSS. The website features smooth scrolling, dynamic 3D elements, and elegant animations to showcase photography work beautifully.
 
-Currently, two official plugins are available:
+**Live Demo:** [https://ajay-bhosale-photography.vercel.app/](https://ajay-bhosale-photography.vercel.app/)
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Cinematic Hero Section**: Features an immersive intro video experience with sound controls.
+- **Smooth Scrolling**: Implemented using [Lenis](https://github.com/studio-freight/lenis) for a fluid user experience.
+- **Dynamic Animations**: Powered by [Framer Motion](https://www.framer.com/motion/) and [GSAP](https://gsap.com/) for seamless page transitions and scroll-triggered animations.
+- **3D Elements**: Uses [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction) & Drei for subtle 3D interactions.
+- **Fully Responsive**: Optimized for all screen sizes using Tailwind CSS.
+- **Contact Form**: Integrated with [EmailJS](https://www.emailjs.com/) for direct messaging from the website.
+- **Dark/Light Mode**: Smooth theme toggling support.
+- **WhatsApp Integration**: Floating quick-contact button for direct communication.
 
-## React Compiler
+## 🛠 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend Framework**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Routing**: [React Router v7](https://reactrouter.com/)
+- **Animations**: Framer Motion, GSAP
+- **3D Rendering**: Three.js, React Three Fiber
+- **Icons**: React Icons
+- **Smooth Scroll**: Lenis
 
-## Expanding the ESLint configuration
+## 📂 Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/components/`: Reusable UI components (Lightbox, BeforeAfterSlider, CameraScene, etc.)
+- `src/pages/`: Main application pages (HomePage, GalleryPage, ServicesPage, VideosPage, ContactPage)
+- `src/data/`: Static data for portfolio items and config
+- `src/hooks/`: Custom React hooks
+
+## 📦 Getting Started
+
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. Navigate to the project directory:
+   ```bash
+   cd AjayBhosalePhotography
+   ```
+
+3. Install the dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running the Development Server
+
+To start the local development server:
+```bash
+npm run dev
+```
+The application will be available at `http://localhost:5173`.
+
+### Building for Production
+
+To create a production-ready build:
+```bash
+npm run build
+```
+The optimized files will be generated in the `dist` directory.
+
+### Previewing the Production Build
+
+To preview the production build locally:
+```bash
+npm run preview
+```
+
+## 📝 Scripts
+
+- `npm run dev`: Starts the Vite development server.
+- `npm run build`: Bundles the app for production.
+- `npm run lint`: Runs ESLint to check for code quality issues.
+- `npm run preview`: Previews the production build.
+
+## 📄 License
+
+This project is private and proprietary.
